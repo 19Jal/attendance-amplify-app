@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
+import Avatar from './Avatar';
 import { Clock, Users, Calendar, AlertTriangle, Download, User, LogOut, ChevronDown, BellRing, Search } from 'lucide-react';
 
 // Mock data for our static frontend
 const mockAttendanceData = [
-  { id: 1, name: 'John Smith', time: '08:32:15', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 2, name: 'Maria Garcia', time: '08:45:22', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 3, name: 'Ahmed Khan', time: '08:50:11', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 4, name: 'Sarah Johnson', time: '09:05:44', date: '2025-05-07', status: 'Late', image: '/api/placeholder/50/50' },
-  { id: 5, name: 'Li Wei', time: '09:15:30', date: '2025-05-07', status: 'Late', image: '/api/placeholder/50/50' },
-  { id: 6, name: 'Olivia Brown', time: '08:30:05', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 7, name: 'Carlos Mendez', time: '08:42:19', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
+  { id: 1, name: 'John Smith', time: '08:32:15', date: '2025-05-07', status: 'Present'},
+  { id: 2, name: 'Maria Garcia', time: '08:45:22', date: '2025-05-07', status: 'Present'},
+  { id: 3, name: 'Ahmed Khan', time: '08:50:11', date: '2025-05-07', status: 'Present',},
+  { id: 4, name: 'Sarah Johnson', time: '09:05:44', date: '2025-05-07', status: 'Late',},
+  { id: 5, name: 'Li Wei', time: '09:15:30', date: '2025-05-07', status: 'Late',},
+  { id: 6, name: 'Olivia Brown', time: '08:30:05', date: '2025-05-07', status: 'Present',},
+  { id: 7, name: 'Carlos Mendez', time: '08:42:19', date: '2025-05-07', status: 'Present',},
 ];
 
 const mockAlerts = [
-  { id: 1, message: 'Unrecognized person at entrance', time: '09:32:15', date: '2025-05-07', image: '/api/placeholder/50/50' },
-  { id: 2, message: 'Unknown face detected at south gate', time: '08:15:22', date: '2025-05-07', image: '/api/placeholder/50/50' }
+  { id: 1, message: 'Unrecognized person at entrance', time: '09:32:15', date: '2025-05-07',},
+  { id: 2, message: 'Unknown face detected at south gate', time: '08:15:22', date: '2025-05-07',}
 ];
 
 const mockChartData = [
@@ -227,7 +228,7 @@ const AlertsContent = () => {
           <AlertsList alerts={[
             ...mockAlerts,
             { id: 3, message: 'System camera 2 disconnected', time: '07:22:45', date: '2025-05-07', image: null },
-            { id: 4, message: 'Unrecognized person at west entrance', time: '10:05:33', date: '2025-05-06', image: '/api/placeholder/50/50' },
+            { id: 4, message: 'Unrecognized person at west entrance', time: '10:05:33', date: '2025-05-06',},
           ]} />
         </div>
       </div>
@@ -412,7 +413,7 @@ const AttendanceList = ({ attendances, compact }) => {
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div className="flex-shrink-0 h-10 w-10">
-                    <img className="h-10 w-10 rounded-full" src={attendance.image} alt={attendance.name} />
+                    <Avatar name={attendance.name} size={40} />
                   </div>
                   <div className="ml-4">
                     <div className="text-sm font-medium text-gray-900">{attendance.name}</div>
