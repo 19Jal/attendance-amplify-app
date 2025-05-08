@@ -181,7 +181,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           >
             <Menu size={24} />
           </button>
-          <h2 className="text-lg md:text-xl font-semibold text-gray-800 truncate">Face Recognition Attendance</h2>
+          <h2 className="text-base md:text-xl font-semibold text-gray-900 truncate">Face Recognition Attendance</h2>
         </div>
         <div className="flex items-center space-x-3 md:space-x-4">
           <div className="relative">
@@ -477,7 +477,7 @@ const AttendanceList = ({ attendances, compact }) => {
                 <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
-                      <Avatar name={attendance.name} size={compact ? 32 : 40} />
+                      <Avatar name={attendance.name} size={32} />
                     </div>
                     <div className="ml-3 md:ml-4">
                       <div className="text-xs md:text-sm font-medium text-gray-900">{attendance.name}</div>
@@ -510,11 +510,7 @@ const AlertsList = ({ alerts }) => {
     <div className="space-y-3 md:space-y-4">
       {alerts.map((alert) => (
         <div key={alert.id} className="flex items-start p-3 md:p-4 border rounded-lg bg-red-50 border-red-200">
-          {alert.image ? (
-            <Avatar name="Unknown Person" size={32} />
-          ) : (
-            <AlertTriangle className="h-8 w-8 md:h-12 md:w-12 text-red-500 mr-3 md:mr-4" />
-          )}
+          <AlertTriangle className="h-8 w-8 md:h-12 md:w-12 text-red-500 mr-3 md:mr-4" />
           <div className="flex-1">
             <div className="flex flex-col md:flex-row md:justify-between">
               <p className="font-medium text-red-800 text-sm md:text-base">{alert.message}</p>
