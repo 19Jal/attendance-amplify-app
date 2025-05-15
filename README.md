@@ -2,4 +2,4 @@
 
 The dashboard is hosted on AWS Amplify using student's academy learner's lab
 
-URL: main.d18ccseljr9vyz.amplifyapp.com
+[URL: main.d18ccseljr9vyz.amplifyapp.com](https://main.d18ccseljr9vyz.amplifyapp.com/)
