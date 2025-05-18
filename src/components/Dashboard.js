@@ -152,10 +152,47 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Calculate statistics from real data
-  const totalStudents = students.length;
-  const presentToday = displayAttendance.filter(record => record.status === 'Present').length;
-  const absentToday = totalStudents - presentToday;
+  // Updated Dashboard Statistics Calculation
+  const calculateDashboardStats = (students, displayAttendance) => {
+    const totalStudents = students.length;
+    
+    // Get today's date in the same format as displayed attendance records
+    const today = new Date().toLocaleDateString('en-US');
+    
+    // Filter attendance records for today only
+    const todaysAttendance = displayAttendance.filter(record => record.date === today);
+    
+    // Get unique students who were present today
+    const uniquePresentStudents = new Set(
+      todaysAttendance
+        .filter(record => record.status === 'Present')
+        .map(record => record.studentId)
+    );
+    const presentToday = uniquePresentStudents.size;
+    
+    // Get unique students who were late today
+    const uniqueLateStudents = new Set(
+      todaysAttendance
+        .filter(record => record.status === 'Late')
+        .map(record => record.studentId)
+    );
+    const lateToday = uniqueLateStudents.size;
+    
+    // Calculate absent today (students who have no attendance record for today)
+    const studentsWithTodaysRecord = new Set(todaysAttendance.map(record => record.studentId));
+    const absentToday = Math.max(0, totalStudents - studentsWithTodaysRecord.size);
+    
+    return {
+      totalStudents,
+      presentToday,
+      lateToday,
+      absentToday,
+      todaysAttendance
+    };
+  };
+
+  const stats = calculateDashboardStats(students, displayAttendance);
+  const { totalStudents, presentToday, absentToday } = stats;
 
   // Show loading state
   if (loading) {
@@ -271,9 +308,7 @@ const Dashboard = () => {
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {activeTab === 'dashboard' && (
             <DashboardContent 
-              totalStudents={totalStudents}
-              presentToday={presentToday}
-              absentToday={absentToday}
+              students={students}
               displayAttendance={displayAttendance}
               displayAlerts={displayAlerts}
               chartData={chartData}
@@ -338,25 +373,71 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 };
 
 // Dashboard Content Component
-const DashboardContent = ({ totalStudents, presentToday, absentToday, displayAttendance, displayAlerts, chartData }) => {
+const DashboardContent = ({ students, displayAttendance, displayAlerts, chartData }) => {
+  // Calculate statistics using the improved logic
+  const calculateDashboardStats = (students, displayAttendance) => {
+    const totalStudents = students.length;
+    
+    // Get today's date in the same format as displayed attendance records
+    const today = new Date().toLocaleDateString('en-US');
+    
+    // Filter attendance records for today only
+    const todaysAttendance = displayAttendance.filter(record => record.date === today);
+    
+    // Get unique students who were present today
+    const uniquePresentStudents = new Set(
+      todaysAttendance
+        .filter(record => record.status === 'Present')
+        .map(record => record.studentId)
+    );
+    const presentToday = uniquePresentStudents.size;
+    
+    // Get unique students who were late today
+    const uniqueLateStudents = new Set(
+      todaysAttendance
+        .filter(record => record.status === 'Late')
+        .map(record => record.studentId)
+    );
+    const lateToday = uniqueLateStudents.size;
+    
+    // Calculate absent today (students who have no attendance record for today)
+    const studentsWithTodaysRecord = new Set(todaysAttendance.map(record => record.studentId));
+    const absentToday = Math.max(0, totalStudents - studentsWithTodaysRecord.size);
+    
+    return {
+      totalStudents,
+      presentToday,
+      lateToday,
+      absentToday
+    };
+  };
+
+  const stats = calculateDashboardStats(students, displayAttendance);
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard 
           title="Total Students" 
-          value={totalStudents.toString()} 
+          value={stats.totalStudents.toString()} 
           icon={<Users className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />} 
           bgColor="bg-blue-100" 
         />
         <StatCard 
           title="Present Today" 
-          value={presentToday.toString()} 
+          value={stats.presentToday.toString()} 
           icon={<Clock className="h-7 w-7 md:h-8 md:w-8 text-green-500" />} 
           bgColor="bg-green-100" 
         />
         <StatCard 
+          title="Late Today" 
+          value={stats.lateToday.toString()} 
+          icon={<Clock className="h-7 w-7 md:h-8 md:w-8 text-yellow-500" />} 
+          bgColor="bg-yellow-100" 
+        />
+        <StatCard 
           title="Absent Today" 
-          value={absentToday.toString()} 
+          value={stats.absentToday.toString()} 
           icon={<AlertTriangle className="h-7 w-7 md:h-8 md:w-8 text-red-500" />} 
           bgColor="bg-red-100" 
         />

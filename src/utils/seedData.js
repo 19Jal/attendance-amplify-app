@@ -47,16 +47,7 @@ const generateAttendanceRecords = (students) => {
 // Generate sample alerts (only unknown face alerts)
 const generateAlerts = () => {
   const alertMessages = [
-    'Unknown person detected in classroom',
     'Unrecognized face detected during attendance',
-    'Unknown individual entered classroom',
-    'Face not recognized in student database',
-    'Unfamiliar person detected',
-    'Non-registered face identified',
-    'Unknown visitor detected in classroom',
-    'Unidentified person alert',
-    'Face recognition: unknown person',
-    'Alert: Unknown face in attendance area'
   ];
   
   const alerts = [];
@@ -74,7 +65,7 @@ const generateAlerts = () => {
     timestamp.setHours(hours, minutes, 0, 0);
     
     alerts.push({
-      message: alertMessages[Math.floor(Math.random() * alertMessages.length)],
+      message: alertMessages,
       timestamp: timestamp.toISOString(),
       alertType: 'UNKNOWN_FACE', // Only one type now
       acknowledged: Math.random() > 0.6 // Slightly less likely to be acknowledged
