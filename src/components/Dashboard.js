@@ -240,16 +240,7 @@ const Dashboard = () => {
         fixed inset-y-0 left-0 z-30 w-64 bg-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-6 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Smart Attendance</h1>
-          <button 
-            className="lg:hidden text-white" 
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close menu"
-          >
-            <X size={24} />
-          </button>
-        </div>
+        
         <nav className="mt-6">
           <SidebarLink 
             icon={<Users />} 
@@ -287,15 +278,6 @@ const Dashboard = () => {
               setSidebarOpen(false);
             }} 
           />
-          <SidebarLink 
-            icon={<User />} 
-            title="Admin Panel" 
-            active={activeTab === 'admin'} 
-            onClick={() => {
-              setActiveTab('admin');
-              setSidebarOpen(false);
-            }} 
-          />
         </nav>
       </div>
       
@@ -315,7 +297,6 @@ const Dashboard = () => {
           {activeTab === 'attendance' && <AttendanceContent displayAttendance={displayAttendance} />}
           {activeTab === 'alerts' && <AlertsContent displayAlerts={displayAlerts} />}
           {activeTab === 'reports' && <ReportsContent chartData={chartData} />}
-          {activeTab === 'admin' && <AdminContent students={students} />}
         </main>
       </div>
     </div>
@@ -610,96 +591,6 @@ const ReportsContent = ({ chartData }) => {
   );
 };
 
-// Admin Content Component
-const AdminContent = ({ students }) => {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-xl md:text-2xl font-bold">Admin Control Panel</h2>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        <div className="lg:col-span-2 space-y-4 md:space-y-6">
-          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-            <h3 className="text-base md:text-lg font-semibold mb-4">System Status</h3>
-            <div className="space-y-4">
-              <StatusItem label="Camera System" status="Online" statusColor="text-green-500" />
-              <StatusItem label="Face Recognition Service" status="Online" statusColor="text-green-500" />
-              <StatusItem label="Database Connection" status="Online" statusColor="text-green-500" />
-              <StatusItem label="Alert System" status="Online" statusColor="text-green-500" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-            <h3 className="text-base md:text-lg font-semibold mb-4">Recognition Settings</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confidence Threshold</label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="100" 
-                  defaultValue="75" 
-                  className="w-full" 
-                />
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>Less Strict</span>
-                  <span>More Strict</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">Enable Unknown Face Alerts</label>
-                <div className="relative inline-block w-10 h-5">
-                  <input type="checkbox" className="opacity-0 w-0 h-0" defaultChecked />
-                  <span className="absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-green-500 rounded-full"></span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">Auto-Generate Reports</label>
-                <div className="relative inline-block w-10 h-5">
-                  <input type="checkbox" className="opacity-0 w-0 h-0" defaultChecked />
-                  <span className="absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-green-500 rounded-full"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="space-y-4 md:space-y-6">
-          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-            <h3 className="text-base md:text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                Add New User
-              </button>
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                Generate Report
-              </button>
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                Backup Database
-              </button>
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                System Maintenance
-              </button>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-            <h3 className="text-base md:text-lg font-semibold mb-4">System Information</h3>
-            <div className="space-y-2">
-              <InfoItem label="Version" value="v1.2.5" />
-              <InfoItem label="Last Updated" value="May 5, 2025" />
-              <InfoItem label="Storage" value="35% used" />
-              <InfoItem label="Recognized Faces" value={students.length.toString()} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Helper Components
 
 // Stat Card Component
 const StatCard = ({ title, value, icon, bgColor }) => {
