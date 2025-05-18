@@ -226,7 +226,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gray-100">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -240,8 +240,17 @@ const Dashboard = () => {
         fixed inset-y-0 left-0 z-30 w-64 bg-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        
-        <nav className="mt-6">
+        <div className="p-6 flex justify-between items-center">
+          <h1 className="text-xl font-bold">Smart Attendance</h1>
+          <button 
+            className="lg:hidden text-white" 
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <nav className="mt-6 overflow-y-auto scroll-container" style={{ maxHeight: 'calc(100vh - 120px)' }}>
           <SidebarLink 
             icon={<Users />} 
             title="Dashboard" 
@@ -282,10 +291,10 @@ const Dashboard = () => {
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto scroll-container p-4 md:p-6">
           {activeTab === 'dashboard' && (
             <DashboardContent 
               students={students}
@@ -423,15 +432,17 @@ const DashboardContent = ({ students, displayAttendance, displayAlerts, chartDat
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col min-h-80">
           <h3 className="text-base md:text-lg font-semibold mb-4">Attendance Chart</h3>
-          {chartData.length > 0 ? (
-            <AttendanceChart data={chartData} />
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No chart data available
-            </div>
-          )}
+          <div className="flex-1">
+            {chartData.length > 0 ? (
+              <AttendanceChart data={chartData} />
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No chart data available
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -591,7 +602,6 @@ const ReportsContent = ({ chartData }) => {
   );
 };
 
-
 // Stat Card Component
 const StatCard = ({ title, value, icon, bgColor }) => {
   return (
@@ -610,7 +620,7 @@ const StatCard = ({ title, value, icon, bgColor }) => {
 };
 
 // Attendance List Component
-const AttendanceList = ({ attendances, compact }) => {
+const AttendanceList = React.memo(({ attendances, compact }) => {
   if (attendances.length === 0) {
     return (
       <div className="text-gray-500 text-center py-8">
@@ -620,56 +630,67 @@ const AttendanceList = ({ attendances, compact }) => {
   }
 
   return (
-    <div className="overflow-x-auto -mx-4 md:mx-0">
+    <div className="overflow-x-auto -mx-4 md:mx-0 scroll-container">
       <div className="inline-block min-w-full align-middle">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>}
-              <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-              <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-              {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>}
-              <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {attendances.map((attendance) => (
-              <tr key={attendance.id}>
-                {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.id}</td>}
-                <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
-                      <Avatar name={attendance.name} size={32} />
-                    </div>
-                    <div className="ml-3 md:ml-4">
-                      <div className="text-xs md:text-sm font-medium text-gray-900">{attendance.name}</div>
-                      <div className="text-xs text-gray-500">ID: {attendance.studentIDNumber}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.time}</td>
-                {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.date}</td>}
-                <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    attendance.status === 'Present' ? 'bg-green-100 text-green-800' : 
-                    attendance.status === 'Late' ? 'bg-yellow-100 text-yellow-800' : 
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {attendance.status}
-                  </span>
-                </td>
-                {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
-                  {attendance.confidence ? `${Math.round(attendance.confidence * 100)}%` : 'N/A'}
-                </td>}
+        <div className="table-container">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50 sticky top-0 z-10">
+              <tr>
+                {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>}
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>}
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {attendances.map((attendance) => (
+                <AttendanceRow 
+                  key={attendance.id} 
+                  attendance={attendance} 
+                  compact={compact} 
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-};
+});
+
+// Separate row component for better performance
+const AttendanceRow = React.memo(({ attendance, compact }) => (
+  <tr>
+    {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.id}</td>}
+    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+      <div className="flex items-center">
+        <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
+          <Avatar name={attendance.name} size={32} />
+        </div>
+        <div className="ml-3 md:ml-4">
+          <div className="text-xs md:text-sm font-medium text-gray-900">{attendance.name}</div>
+          <div className="text-xs text-gray-500">ID: {attendance.studentIDNumber}</div>
+        </div>
+      </div>
+    </td>
+    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.time}</td>
+    {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.date}</td>}
+    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+        attendance.status === 'Present' ? 'bg-green-100 text-green-800' : 
+        attendance.status === 'Late' ? 'bg-yellow-100 text-yellow-800' : 
+        'bg-red-100 text-red-800'
+      }`}>
+        {attendance.status}
+      </span>
+    </td>
+    {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
+      {attendance.confidence ? `${Math.round(attendance.confidence * 100)}%` : 'N/A'}
+    </td>}
+  </tr>
+));
 
 // Alerts List Component
 const AlertsList = ({ alerts }) => {
@@ -719,44 +740,59 @@ const AttendanceChart = ({ data }) => {
   const maxValue = Math.max(...data.map(item => Math.max(item.present, item.absent, item.late)));
   
   return (
-    <div className="h-48 md:h-64">
-      <div className="flex h-full items-end justify-between">
-        {data.map((item, index) => (
-          <div key={index} className="flex-1 flex flex-col items-center">
-            <div className="w-full flex justify-center space-x-1">
-              <div 
-                className="bg-green-500 w-3 md:w-5" 
-                style={{ height: `${(item.present / maxValue) * 100}%` }}
-                title={`Present: ${item.present}`}
-              ></div>
-              <div 
-                className="bg-red-500 w-3 md:w-5" 
-                style={{ height: `${(item.absent / maxValue) * 100}%` }}
-                title={`Absent: ${item.absent}`}
-              ></div>
-              <div 
-                className="bg-yellow-500 w-3 md:w-5" 
-                style={{ height: `${(item.late / maxValue) * 100}%` }}
-                title={`Late: ${item.late}`}
-              ></div>
-            </div>
-            <div className="mt-2 text-xs text-gray-500">{item.name.substring(0, 3)}</div>
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-center mt-4 space-x-4">
+    <div className="flex flex-col h-full">
+      {/* Legend at the top */}
+      <div className="flex justify-center mb-4 space-x-4">
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-green-500 mr-2"></div>
+          <div className="w-4 h-4 bg-green-500 mr-2 rounded"></div>
           <span className="text-sm">Present</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-red-500 mr-2"></div>
+          <div className="w-4 h-4 bg-red-500 mr-2 rounded"></div>
           <span className="text-sm">Absent</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-yellow-500 mr-2"></div>
+          <div className="w-4 h-4 bg-yellow-500 mr-2 rounded"></div>
           <span className="text-sm">Late</span>
         </div>
+      </div>
+      
+      {/* Chart area - fills remaining space */}
+      <div className="flex-1 flex items-end justify-between px-4">
+        {data.map((item, index) => (
+          <div key={index} className="flex-1 flex flex-col items-center">
+            <div className="w-full flex justify-center space-x-1 h-full items-end pb-2">
+              <div 
+                className="bg-green-500 rounded-t transition-all duration-300 hover:opacity-80" 
+                style={{ 
+                  height: `${(item.present / maxValue) * 100}%`,
+                  width: '30%',
+                  minHeight: item.present > 0 ? '4px' : '0px'
+                }}
+                title={`Present: ${item.present}`}
+              ></div>
+              <div 
+                className="bg-red-500 rounded-t transition-all duration-300 hover:opacity-80" 
+                style={{ 
+                  height: `${(item.absent / maxValue) * 100}%`,
+                  width: '30%',
+                  minHeight: item.absent > 0 ? '4px' : '0px'
+                }}
+                title={`Absent: ${item.absent}`}
+              ></div>
+              <div 
+                className="bg-yellow-500 rounded-t transition-all duration-300 hover:opacity-80" 
+                style={{ 
+                  height: `${(item.late / maxValue) * 100}%`,
+                  width: '30%',
+                  minHeight: item.late > 0 ? '4px' : '0px'
+                }}
+                title={`Late: ${item.late}`}
+              ></div>
+            </div>
+            <div className="mt-2 text-xs text-gray-500 font-medium">{item.name.substring(0, 3)}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
