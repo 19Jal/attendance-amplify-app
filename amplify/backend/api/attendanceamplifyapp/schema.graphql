@@ -1,4 +1,4 @@
-type Student @model {
+type Student @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String!
   email: String
@@ -7,7 +7,7 @@ type Student @model {
   attendanceRecords: [AttendanceRecord] @hasMany(indexName: "byStudent", fields: ["id"])
 }
 
-type AttendanceRecord @model {
+type AttendanceRecord @model @auth(rules: [{ allow: public }]) {
   id: ID!
   studentID: ID! @index(name: "byStudent")
   student: Student @belongsTo(fields: ["studentID"])
@@ -18,7 +18,7 @@ type AttendanceRecord @model {
   createdAt: AWSDateTime
 }
 
-type Alert @model {
+type Alert @model @auth(rules: [{ allow: public }]) {
   id: ID!
   message: String!
   timestamp: AWSDateTime!

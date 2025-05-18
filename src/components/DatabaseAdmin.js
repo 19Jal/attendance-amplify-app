@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { seedDatabase, checkDatabaseStatus } from '../utils/seedData';
-import { Database, RefreshCw, CheckCircle, AlertCircle, Users, Clock, Bell } from 'lucide-react';
+import DiagnosticPanel from './DiagnosticPanel';
+import ConnectionTest from './ConnectionTest';
+import { Database, RefreshCw, CheckCircle, AlertCircle, Users, Clock, Bell, Settings, Wifi } from 'lucide-react';
 
 const DatabaseAdmin = () => {
   const [isSeeding, setIsSeeding] = useState(false);
@@ -8,6 +10,7 @@ const DatabaseAdmin = () => {
   const [seedResult, setSeedResult] = useState(null);
   const [dbStatus, setDbStatus] = useState(null);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('admin'); // 'admin' or 'diagnostics'
 
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
@@ -38,6 +41,79 @@ const DatabaseAdmin = () => {
     }
   };
 
+  return (
+    <div className="space-y-6">
+      {/* Tab Navigation */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex">
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={`py-4 px-6 border-b-2 font-medium text-sm ${
+                activeTab === 'admin'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Database className="inline h-5 w-5 mr-2" />
+              Database Admin
+            </button>
+            <button
+              onClick={() => setActiveTab('diagnostics')}
+              className={`py-4 px-6 border-b-2 font-medium text-sm ${
+                activeTab === 'diagnostics'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Settings className="inline h-5 w-5 mr-2" />
+              Diagnostics
+            </button>
+            <button
+              onClick={() => setActiveTab('connection')}
+              className={`py-4 px-6 border-b-2 font-medium text-sm ${
+                activeTab === 'connection'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Wifi className="inline h-5 w-5 mr-2" />
+              Connection Test
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'admin' ? (
+        <AdminContent 
+          isSeeding={isSeeding}
+          isChecking={isChecking}
+          seedResult={seedResult}
+          dbStatus={dbStatus}
+          error={error}
+          handleSeedDatabase={handleSeedDatabase}
+          handleCheckStatus={handleCheckStatus}
+        />
+      ) : activeTab === 'diagnostics' ? (
+        <DiagnosticPanel />
+      ) : (
+        <ConnectionTest />
+      )}
+    </div>
+  );
+};
+
+// Extracted Admin Content Component
+const AdminContent = ({ 
+  isSeeding, 
+  isChecking, 
+  seedResult, 
+  dbStatus, 
+  error, 
+  handleSeedDatabase, 
+  handleCheckStatus 
+}) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center mb-6">
