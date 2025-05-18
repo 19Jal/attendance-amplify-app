@@ -6,8 +6,7 @@ export const getStudent = /* GraphQL */ `
     getStudent(id: $id) {
       id
       name
-      email
-      enrollmentNumber
+      studentIDNumber
       createdAt
       attendanceRecords {
         nextToken
@@ -28,8 +27,7 @@ export const listStudents = /* GraphQL */ `
       items {
         id
         name
-        email
-        enrollmentNumber
+        studentIDNumber
         createdAt
         updatedAt
         __typename
@@ -47,15 +45,13 @@ export const getAttendanceRecord = /* GraphQL */ `
       student {
         id
         name
-        email
-        enrollmentNumber
+        studentIDNumber
         createdAt
         updatedAt
         __typename
       }
       timestamp
       status
-      location
       confidence
       createdAt
       updatedAt
@@ -79,7 +75,6 @@ export const listAttendanceRecords = /* GraphQL */ `
         studentID
         timestamp
         status
-        location
         confidence
         createdAt
         updatedAt
@@ -97,7 +92,6 @@ export const getAlert = /* GraphQL */ `
       message
       timestamp
       alertType
-      location
       imageUrl
       acknowledged
       createdAt
@@ -118,7 +112,6 @@ export const listAlerts = /* GraphQL */ `
         message
         timestamp
         alertType
-        location
         imageUrl
         acknowledged
         createdAt
@@ -150,7 +143,6 @@ export const attendanceRecordsByStudentID = /* GraphQL */ `
         studentID
         timestamp
         status
-        location
         confidence
         createdAt
         updatedAt

@@ -6,8 +6,7 @@ export const onCreateStudent = /* GraphQL */ `
     onCreateStudent(filter: $filter) {
       id
       name
-      email
-      enrollmentNumber
+      studentIDNumber
       createdAt
       attendanceRecords {
         nextToken
@@ -23,8 +22,7 @@ export const onUpdateStudent = /* GraphQL */ `
     onUpdateStudent(filter: $filter) {
       id
       name
-      email
-      enrollmentNumber
+      studentIDNumber
       createdAt
       attendanceRecords {
         nextToken
@@ -40,8 +38,7 @@ export const onDeleteStudent = /* GraphQL */ `
     onDeleteStudent(filter: $filter) {
       id
       name
-      email
-      enrollmentNumber
+      studentIDNumber
       createdAt
       attendanceRecords {
         nextToken
@@ -62,15 +59,13 @@ export const onCreateAttendanceRecord = /* GraphQL */ `
       student {
         id
         name
-        email
-        enrollmentNumber
+        studentIDNumber
         createdAt
         updatedAt
         __typename
       }
       timestamp
       status
-      location
       confidence
       createdAt
       updatedAt
@@ -88,15 +83,13 @@ export const onUpdateAttendanceRecord = /* GraphQL */ `
       student {
         id
         name
-        email
-        enrollmentNumber
+        studentIDNumber
         createdAt
         updatedAt
         __typename
       }
       timestamp
       status
-      location
       confidence
       createdAt
       updatedAt
@@ -114,15 +107,13 @@ export const onDeleteAttendanceRecord = /* GraphQL */ `
       student {
         id
         name
-        email
-        enrollmentNumber
+        studentIDNumber
         createdAt
         updatedAt
         __typename
       }
       timestamp
       status
-      location
       confidence
       createdAt
       updatedAt
@@ -137,7 +128,6 @@ export const onCreateAlert = /* GraphQL */ `
       message
       timestamp
       alertType
-      location
       imageUrl
       acknowledged
       createdAt
@@ -153,7 +143,6 @@ export const onUpdateAlert = /* GraphQL */ `
       message
       timestamp
       alertType
-      location
       imageUrl
       acknowledged
       createdAt
@@ -169,7 +158,6 @@ export const onDeleteAlert = /* GraphQL */ `
       message
       timestamp
       alertType
-      location
       imageUrl
       acknowledged
       createdAt
