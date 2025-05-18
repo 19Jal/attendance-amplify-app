@@ -2,31 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { getAllStudents, getAllAttendanceRecords, getAllAlerts } from '../services/api';
 import { Clock, Users, Calendar, AlertTriangle, Download, User, LogOut, ChevronDown, BellRing, Search, Menu, X } from 'lucide-react';
 
-
-// Mock data for our static frontend
-const mockAttendanceData = [
-  { id: 1, name: 'John Smith', time: '08:32:15', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 2, name: 'Maria Garcia', time: '08:45:22', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 3, name: 'Ahmed Khan', time: '08:50:11', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 4, name: 'Sarah Johnson', time: '09:05:44', date: '2025-05-07', status: 'Late', image: '/api/placeholder/50/50' },
-  { id: 5, name: 'Li Wei', time: '09:15:30', date: '2025-05-07', status: 'Late', image: '/api/placeholder/50/50' },
-  { id: 6, name: 'Olivia Brown', time: '08:30:05', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-  { id: 7, name: 'Carlos Mendez', time: '08:42:19', date: '2025-05-07', status: 'Present', image: '/api/placeholder/50/50' },
-];
-
-const mockAlerts = [
-  { id: 1, message: 'Unrecognized person at entrance', time: '09:32:15', date: '2025-05-07', image: '/api/placeholder/50/50' },
-  { id: 2, message: 'Unknown face detected at south gate', time: '08:15:22', date: '2025-05-07', image: '/api/placeholder/50/50' }
-];
-
-const mockChartData = [
-  { name: 'Monday', present: 42, absent: 8, late: 5 },
-  { name: 'Tuesday', present: 45, absent: 5, late: 5 },
-  { name: 'Wednesday', present: 40, absent: 10, late: 5 },
-  { name: 'Thursday', present: 48, absent: 2, late: 5 },
-  { name: 'Friday', present: 38, absent: 12, late: 5 },
-];
-
 // Avatar Component
 const Avatar = ({ name, size = 40 }) => {
   // Get initials from name
@@ -56,33 +31,120 @@ const Avatar = ({ name, size = 40 }) => {
   );
 };
 
+// Data transformation functions
+const transformAttendanceData = (attendanceRecords, students) => {
+  return attendanceRecords.map(record => {
+    const student = students.find(s => s.id === record.studentID);
+    const timestamp = new Date(record.timestamp);
+    
+    return {
+      id: record.id,
+      name: student ? student.name : 'Unknown Student',
+      time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
+      date: timestamp.toLocaleDateString('en-US'),
+      status: record.status === 'PRESENT' ? 'Present' : 
+              record.status === 'LATE' ? 'Late' : 'Absent',
+      location: record.location || 'Unknown',
+      confidence: record.confidence,
+      studentId: record.studentID
+    };
+  });
+};
+
+const transformAlertsData = (alerts) => {
+  return alerts.map(alert => {
+    const timestamp = new Date(alert.timestamp);
+    
+    return {
+      id: alert.id,
+      message: alert.message,
+      time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
+      date: timestamp.toLocaleDateString('en-US'),
+      alertType: alert.alertType,
+      location: alert.location || 'Unknown',
+      acknowledged: alert.acknowledged,
+      imageUrl: alert.imageUrl
+    };
+  });
+};
+
+// Generate chart data from attendance records
+const generateChartData = (attendanceRecords) => {
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const chartData = [];
+  
+  days.forEach(day => {
+    // For demo purposes, generate some sample data
+    // In a real app, you'd filter attendance records by day
+    chartData.push({
+      name: day,
+      present: Math.floor(Math.random() * 50) + 30,
+      absent: Math.floor(Math.random() * 10) + 2,
+      late: Math.floor(Math.random() * 8) + 2
+    });
+  });
+  
+  return chartData;
+};
+
 // Main Dashboard Component
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false); // State for mobile sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // State for real data
   const [students, setStudents] = useState([]);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Transformed data for display
+  const [displayAttendance, setDisplayAttendance] = useState([]);
+  const [displayAlerts, setDisplayAlerts] = useState([]);
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        // Fetch all data from DynamoDB via GraphQL
         const [studentsData, attendanceData, alertsData] = await Promise.all([
           getAllStudents(),
           getAllAttendanceRecords(),
           getAllAlerts()
         ]);
         
-        setStudents(studentsData);
-        setAttendanceRecords(attendanceData);
-        setAlerts(alertsData);
+        console.log('Fetched students:', studentsData);
+        console.log('Fetched attendance:', attendanceData);
+        console.log('Fetched alerts:', alertsData);
+        
+        setStudents(studentsData || []);
+        setAttendanceRecords(attendanceData || []);
+        setAlerts(alertsData || []);
+
+        // Transform data for display
+        const transformedAttendance = transformAttendanceData(attendanceData || [], studentsData || []);
+        const transformedAlerts = transformAlertsData(alertsData || []);
+        const generatedChartData = generateChartData(attendanceData || []);
+
+        setDisplayAttendance(transformedAttendance);
+        setDisplayAlerts(transformedAlerts);
+        setChartData(generatedChartData);
+
       } catch (error) {
         console.error('Error fetching data:', error);
-        // You could set an error state here
+        setError(error.message);
+        
+        // Set empty arrays as fallback
+        setStudents([]);
+        setAttendanceRecords([]);
+        setAlerts([]);
+        setDisplayAttendance([]);
+        setDisplayAlerts([]);
+        setChartData([]);
       } finally {
         setLoading(false);
       }
@@ -91,13 +153,39 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  // Calculate statistics from real data
+  const totalStudents = students.length;
+  const presentToday = displayAttendance.filter(record => record.status === 'Present').length;
+  const absentToday = totalStudents - presentToday;
+
   // Show loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-lg">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center p-8 max-w-md mx-auto">
+          <div className="text-red-500 mb-4">
+            <AlertTriangle size={48} className="mx-auto" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Reload Dashboard
+          </button>
         </div>
       </div>
     );
@@ -105,7 +193,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Mobile sidebar backdrop (only visible when sidebar is open) */}
+      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-gray-800 bg-opacity-50 z-20 lg:hidden"
@@ -113,7 +201,7 @@ const Dashboard = () => {
         ></div>
       )}
       
-      {/* Sidebar - responsive classes added */}
+      {/* Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-30 w-64 bg-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -135,7 +223,7 @@ const Dashboard = () => {
             active={activeTab === 'dashboard'} 
             onClick={() => {
               setActiveTab('dashboard');
-              setSidebarOpen(false); // Close sidebar on mobile after selection
+              setSidebarOpen(false);
             }} 
           />
           <SidebarLink 
@@ -181,13 +269,21 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
-        {/* Content area with better mobile padding */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {activeTab === 'dashboard' && <DashboardContent />}
-          {activeTab === 'attendance' && <AttendanceContent />}
-          {activeTab === 'alerts' && <AlertsContent />}
-          {activeTab === 'reports' && <ReportsContent />}
-          {activeTab === 'admin' && <AdminContent />}
+          {activeTab === 'dashboard' && (
+            <DashboardContent 
+              totalStudents={totalStudents}
+              presentToday={presentToday}
+              absentToday={absentToday}
+              displayAttendance={displayAttendance}
+              displayAlerts={displayAlerts}
+              chartData={chartData}
+            />
+          )}
+          {activeTab === 'attendance' && <AttendanceContent displayAttendance={displayAttendance} />}
+          {activeTab === 'alerts' && <AlertsContent displayAlerts={displayAlerts} />}
+          {activeTab === 'reports' && <ReportsContent chartData={chartData} />}
+          {activeTab === 'admin' && <AdminContent students={students} />}
         </main>
       </div>
     </div>
@@ -211,13 +307,12 @@ const SidebarLink = ({ icon, title, active, onClick }) => {
   );
 };
 
-// Header Component - Updated with hamburger menu
+// Header Component
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <header className="bg-white shadow-sm">
       <div className="flex justify-between items-center px-4 py-4 md:px-6">
         <div className="flex items-center">
-          {/* Hamburger menu button - only visible on mobile */}
           <button 
             className="mr-4 lg:hidden text-gray-600 hover:text-gray-900"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -243,20 +338,41 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   );
 };
 
-// Dashboard Content Component - With responsive grids
-const DashboardContent = () => {
+// Dashboard Content Component
+const DashboardContent = ({ totalStudents, presentToday, absentToday, displayAttendance, displayAlerts, chartData }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <StatCard title="Total Students" value="55" icon={<Users className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />} bgColor="bg-blue-100" />
-        <StatCard title="Present Today" value="48" icon={<Clock className="h-7 w-7 md:h-8 md:w-8 text-green-500" />} bgColor="bg-green-100" />
-        <StatCard title="Absent Today" value="7" icon={<AlertTriangle className="h-7 w-7 md:h-8 md:w-8 text-red-500" />} bgColor="bg-red-100" />
+        <StatCard 
+          title="Total Students" 
+          value={totalStudents.toString()} 
+          icon={<Users className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />} 
+          bgColor="bg-blue-100" 
+        />
+        <StatCard 
+          title="Present Today" 
+          value={presentToday.toString()} 
+          icon={<Clock className="h-7 w-7 md:h-8 md:w-8 text-green-500" />} 
+          bgColor="bg-green-100" 
+        />
+        <StatCard 
+          title="Absent Today" 
+          value={absentToday.toString()} 
+          icon={<AlertTriangle className="h-7 w-7 md:h-8 md:w-8 text-red-500" />} 
+          bgColor="bg-red-100" 
+        />
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
           <h3 className="text-base md:text-lg font-semibold mb-4">Attendance Chart</h3>
-          <AttendanceChart data={mockChartData} />
+          {chartData.length > 0 ? (
+            <AttendanceChart data={chartData} />
+          ) : (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No chart data available
+            </div>
+          )}
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -264,7 +380,13 @@ const DashboardContent = () => {
             <h3 className="text-base md:text-lg font-semibold">Recent Attendances</h3>
             <a href="#" className="text-blue-600 hover:text-blue-800 text-sm">View All</a>
           </div>
-          <AttendanceList attendances={mockAttendanceData.slice(0, 5)} compact={true} />
+          {displayAttendance.length > 0 ? (
+            <AttendanceList attendances={displayAttendance.slice(0, 5)} compact={true} />
+          ) : (
+            <div className="text-gray-500 text-center py-8">
+              No attendance records found
+            </div>
+          )}
         </div>
       </div>
       
@@ -274,15 +396,21 @@ const DashboardContent = () => {
             <h3 className="text-base md:text-lg font-semibold">Recent Alerts</h3>
             <a href="#" className="text-blue-600 hover:text-blue-800 text-sm">View All</a>
           </div>
-          <AlertsList alerts={mockAlerts} />
+          {displayAlerts.length > 0 ? (
+            <AlertsList alerts={displayAlerts.slice(0, 3)} />
+          ) : (
+            <div className="text-gray-500 text-center py-8">
+              No alerts found
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-// Attendance Content Component - Responsive updates
-const AttendanceContent = () => {
+// Attendance Content Component
+const AttendanceContent = ({ displayAttendance }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -307,15 +435,23 @@ const AttendanceContent = () => {
       
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-4 md:p-6">
-          <AttendanceList attendances={mockAttendanceData} compact={false} />
+          {displayAttendance.length > 0 ? (
+            <AttendanceList attendances={displayAttendance} compact={false} />
+          ) : (
+            <div className="text-gray-500 text-center py-12">
+              <Clock size={48} className="mx-auto mb-4 text-gray-400" />
+              <h3 className="text-lg font-medium mb-2">No Attendance Records</h3>
+              <p>No attendance records found. Records will appear here once students check in.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-// Alerts Content Component - Responsive updates
-const AlertsContent = () => {
+// Alerts Content Component
+const AlertsContent = ({ displayAlerts }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -332,19 +468,23 @@ const AlertsContent = () => {
       
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-4 md:p-6">
-          <AlertsList alerts={[
-            ...mockAlerts,
-            { id: 3, message: 'System camera 2 disconnected', time: '07:22:45', date: '2025-05-07', image: null },
-            { id: 4, message: 'Unrecognized person at west entrance', time: '10:05:33', date: '2025-05-06', image: '/api/placeholder/50/50' },
-          ]} />
+          {displayAlerts.length > 0 ? (
+            <AlertsList alerts={displayAlerts} />
+          ) : (
+            <div className="text-gray-500 text-center py-12">
+              <BellRing size={48} className="mx-auto mb-4 text-gray-400" />
+              <h3 className="text-lg font-medium mb-2">No Alerts</h3>
+              <p>No security alerts found. This is good news!</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-// Reports Content Component - Responsive updates
-const ReportsContent = () => {
+// Reports Content Component
+const ReportsContent = ({ chartData }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -360,7 +500,13 @@ const ReportsContent = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
           <h3 className="text-base md:text-lg font-semibold mb-4">Weekly Attendance</h3>
-          <AttendanceChart data={mockChartData} />
+          {chartData.length > 0 ? (
+            <AttendanceChart data={chartData} />
+          ) : (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No chart data available
+            </div>
+          )}
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -391,8 +537,8 @@ const ReportsContent = () => {
   );
 };
 
-// Admin Content Component - Responsive updates
-const AdminContent = () => {
+// Admin Content Component
+const AdminContent = ({ students }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-xl md:text-2xl font-bold">Admin Control Panel</h2>
@@ -471,7 +617,7 @@ const AdminContent = () => {
               <InfoItem label="Version" value="v1.2.5" />
               <InfoItem label="Last Updated" value="May 5, 2025" />
               <InfoItem label="Storage" value="35% used" />
-              <InfoItem label="Recognized Faces" value="55" />
+              <InfoItem label="Recognized Faces" value={students.length.toString()} />
             </div>
           </div>
         </div>
@@ -480,9 +626,9 @@ const AdminContent = () => {
   );
 };
 
-// ----- Helper Components -----
+// Helper Components
 
-// Stat Card Component - Responsive adjustments
+// Stat Card Component
 const StatCard = ({ title, value, icon, bgColor }) => {
   return (
     <div className={`${bgColor} rounded-lg p-4 md:p-6 shadow-md`}>
@@ -499,8 +645,16 @@ const StatCard = ({ title, value, icon, bgColor }) => {
   );
 };
 
-// Attendance List Component - Made responsive
+// Attendance List Component
 const AttendanceList = ({ attendances, compact }) => {
+  if (attendances.length === 0) {
+    return (
+      <div className="text-gray-500 text-center py-8">
+        No attendance records to display
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto -mx-4 md:mx-0">
       <div className="inline-block min-w-full align-middle">
@@ -512,6 +666,7 @@ const AttendanceList = ({ attendances, compact }) => {
               <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
               {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>}
               <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -539,6 +694,7 @@ const AttendanceList = ({ attendances, compact }) => {
                     {attendance.status}
                   </span>
                 </td>
+                {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.location}</td>}
               </tr>
             ))}
           </tbody>
@@ -548,19 +704,28 @@ const AttendanceList = ({ attendances, compact }) => {
   );
 };
 
-// Alerts List Component - Made responsive
+// Alerts List Component
 const AlertsList = ({ alerts }) => {
+  if (alerts.length === 0) {
+    return (
+      <div className="text-gray-500 text-center py-8">
+        No alerts to display
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3 md:space-y-4">
       {alerts.map((alert) => (
         <div key={alert.id} className="flex items-start p-3 md:p-4 border rounded-lg bg-red-50 border-red-200">
-          <AlertTriangle className="h-8 w-8 md:h-12 md:w-12 text-red-500 mr-3 md:mr-4" />
+          <AlertTriangle className="h-8 w-8 md:h-12 md:w-12 text-red-500 mr-3 md:mr-4 flex-shrink-0" />
           <div className="flex-1">
             <div className="flex flex-col md:flex-row md:justify-between">
               <p className="font-medium text-red-800 text-sm md:text-base">{alert.message}</p>
               <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-0">{alert.time}</p>
             </div>
             <p className="text-xs md:text-sm text-gray-500">{alert.date}</p>
+            {alert.location && <p className="text-xs md:text-sm text-gray-500">Location: {alert.location}</p>}
           </div>
           <button className="ml-2 text-gray-400 hover:text-gray-500">
             <span className="sr-only">Dismiss</span>
@@ -572,27 +737,29 @@ const AlertsList = ({ alerts }) => {
   );
 };
 
-// Attendance Chart Component - Made responsive
+// Attendance Chart Component
 const AttendanceChart = ({ data }) => {
+  const maxValue = Math.max(...data.map(item => Math.max(item.present, item.absent, item.late)));
+  
   return (
     <div className="h-48 md:h-64">
-      <div className="flex h-full items-end">
+      <div className="flex h-full items-end justify-between">
         {data.map((item, index) => (
           <div key={index} className="flex-1 flex flex-col items-center">
             <div className="w-full flex justify-center space-x-1">
               <div 
                 className="bg-green-500 w-3 md:w-5" 
-                style={{ height: `${item.present}%` }}
+                style={{ height: `${(item.present / maxValue) * 100}%` }}
                 title={`Present: ${item.present}`}
               ></div>
               <div 
                 className="bg-red-500 w-3 md:w-5" 
-                style={{ height: `${item.absent}%` }}
+                style={{ height: `${(item.absent / maxValue) * 100}%` }}
                 title={`Absent: ${item.absent}`}
               ></div>
               <div 
                 className="bg-yellow-500 w-3 md:w-5" 
-                style={{ height: `${item.late}%` }}
+                style={{ height: `${(item.late / maxValue) * 100}%` }}
                 title={`Late: ${item.late}`}
               ></div>
             </div>
@@ -600,11 +767,25 @@ const AttendanceChart = ({ data }) => {
           </div>
         ))}
       </div>
+      <div className="flex justify-center mt-4 space-x-4">
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-green-500 mr-2"></div>
+          <span className="text-sm">Present</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-red-500 mr-2"></div>
+          <span className="text-sm">Absent</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-yellow-500 mr-2"></div>
+          <span className="text-sm">Late</span>
+        </div>
+      </div>
     </div>
   );
 };
 
-// Report Card Component - Made responsive
+// Report Card Component
 const ReportCard = ({ title, description, icon }) => {
   return (
     <div className="border rounded-lg p-3 md:p-4 flex items-start hover:bg-blue-50 cursor-pointer">
