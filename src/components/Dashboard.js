@@ -293,16 +293,6 @@ const Dashboard = () => {
         fixed inset-y-0 left-0 z-30 w-64 bg-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-6 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Smart Attendance</h1>
-          <button 
-            className="lg:hidden text-white" 
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close menu"
-          >
-            <X size={24} />
-          </button>
-        </div>
         <nav className="mt-6 overflow-y-auto scroll-container" style={{ maxHeight: 'calc(100vh - 120px)' }}>
           <SidebarLink 
             icon={<Users />} 
