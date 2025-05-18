@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-attendanceamplifyapp-dev-f5d2a-authRole",
+      "UnauthRoleArn": "arn:aws:iam::720688685939:role/amplify-attendanceamplifyapp-dev-f5d2a-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::720688685939:role/amplify-attendanceamplifyapp-dev-f5d2a-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-attendanceamplifyapp-dev-f5d2a-deployment",
+      "UnauthRoleName": "amplify-attendanceamplifyapp-dev-f5d2a-unauthRole",
+      "StackName": "amplify-attendanceamplifyapp-dev-f5d2a",
+      "StackId": "arn:aws:cloudformation:us-east-1:720688685939:stack/amplify-attendanceamplifyapp-dev-f5d2a/c3e4ce00-33b3-11f0-900d-0afff20a71d7",
+      "AmplifyAppId": "d27ccfk5zdmcn"
+    },
+    "categories": {
+      "storage": {
+        "StudentsDB": {}
+      },
+      "api": {
+        "attendanceamplifyapp": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "resourceName": "StudentsDB",
+  "tableName": "Students",
+  "partitionKey": {
+    "fieldName": "StudentID",
+    "fieldType": "string"
+  },
+  "gsi": [
+    {
+      "name": "ByNameIndex",
+      "partitionKey": {
+        "fieldName": "Name",
+        "fieldType": "string"
+      }
+    }
+  ],
+  "triggerFunctions": []
+}

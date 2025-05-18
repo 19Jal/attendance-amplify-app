@@ -1,0 +1,42 @@
+type Student @model {
+  id: ID!
+  name: String!
+  email: String
+  enrollmentNumber: String!
+  createdAt: AWSDateTime
+  attendanceRecords: [AttendanceRecord] @hasMany(indexName: "byStudent", fields: ["id"])
+}
+
+type AttendanceRecord @model {
+  id: ID!
+  studentID: ID! @index(name: "byStudent")
+  student: Student @belongsTo(fields: ["studentID"])
+  timestamp: AWSDateTime!
+  status: AttendanceStatus!
+  location: String
+  confidence: Float
+  createdAt: AWSDateTime
+}
+
+type Alert @model {
+  id: ID!
+  message: String!
+  timestamp: AWSDateTime!
+  alertType: AlertType!
+  location: String
+  imageUrl: String
+  acknowledged: Boolean!
+  createdAt: AWSDateTime
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+}
+
+enum AlertType {
+  UNKNOWN_FACE
+  SYSTEM_ERROR
+  MULTIPLE_DETECTION
+}

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAllStudents, getAllAttendanceRecords, getAllAlerts } from '../services/api';
 import { Clock, Users, Calendar, AlertTriangle, Download, User, LogOut, ChevronDown, BellRing, Search, Menu, X } from 'lucide-react';
+
 
 // Mock data for our static frontend
 const mockAttendanceData = [
@@ -58,7 +60,49 @@ const Avatar = ({ name, size = 40 }) => {
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for mobile sidebar toggle
-  
+
+  // State for real data
+  const [students, setStudents] = useState([]);
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [studentsData, attendanceData, alertsData] = await Promise.all([
+          getAllStudents(),
+          getAllAttendanceRecords(),
+          getAllAlerts()
+        ]);
+        
+        setStudents(studentsData);
+        setAttendanceRecords(attendanceData);
+        setAlerts(alertsData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // You could set an error state here
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-lg">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Mobile sidebar backdrop (only visible when sidebar is open) */}
