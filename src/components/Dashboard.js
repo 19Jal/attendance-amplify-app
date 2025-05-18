@@ -68,22 +68,75 @@ const transformAlertsData = (alerts) => {
 };
 
 // Generate chart data from attendance records
-const generateChartData = (attendanceRecords) => {
+// Improved function to generate chart data from actual attendance records
+const generateChartData = (attendanceRecords, students) => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const chartData = [];
   
-  days.forEach(day => {
-    // For demo purposes, generate some sample data
-    // In a real app, you'd filter attendance records by day
+  // Get the last 7 days
+  const last7Days = [];
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    last7Days.push({
+      date: date.toLocaleDateString('en-US'),
+      dayName: date.toLocaleDateString('en-US', { weekday: 'long' }),
+      dayIndex: date.getDay() // 0 = Sunday, 1 = Monday, etc.
+    });
+  }
+
+  // Filter to only weekdays (Monday-Friday)
+  const weekdays = last7Days.filter(day => day.dayIndex >= 1 && day.dayIndex <= 5);
+
+  weekdays.forEach(dayInfo => {
+    // Filter attendance records for this specific day
+    const dayAttendance = attendanceRecords.filter(record => {
+      const recordDate = new Date(record.timestamp).toLocaleDateString('en-US');
+      return recordDate === dayInfo.date;
+    });
+
+    // Count unique students by status for this day
+    const presentStudents = new Set();
+    const lateStudents = new Set();
+    const absentStudents = new Set();
+
+    dayAttendance.forEach(record => {
+      if (record.status === 'PRESENT') {
+        presentStudents.add(record.studentID);
+      } else if (record.status === 'LATE') {
+        lateStudents.add(record.studentID);
+      } else if (record.status === 'ABSENT') {
+        absentStudents.add(record.studentID);
+      }
+    });
+
+    // Calculate absent students (total students minus those with records)
+    const totalStudents = students.length;
+    const studentsWithRecords = new Set([...presentStudents, ...lateStudents, ...absentStudents]);
+    const actualAbsent = totalStudents - studentsWithRecords.size + absentStudents.size;
+
     chartData.push({
-      name: day,
-      present: Math.floor(Math.random() * 50) + 30,
-      absent: Math.floor(Math.random() * 10) + 2,
-      late: Math.floor(Math.random() * 8) + 2
+      name: dayInfo.dayName,
+      present: presentStudents.size,
+      absent: Math.max(0, actualAbsent), // Ensure non-negative
+      late: lateStudents.size
     });
   });
-  
-  return chartData;
+
+  // If we don't have enough real data, fill with sample data
+  if (chartData.length < 5) {
+    const remainingDays = 5 - chartData.length;
+    for (let i = 0; i < remainingDays; i++) {
+      chartData.push({
+        name: days[chartData.length],
+        present: Math.floor(Math.random() * 50) + 30,
+        absent: Math.floor(Math.random() * 10) + 2,
+        late: Math.floor(Math.random() * 8) + 2
+      });
+    }
+  }
+
+  return chartData.slice(0, 5); // Only return 5 days (Monday-Friday)
 };
 
 // Main Dashboard Component
@@ -127,7 +180,7 @@ const Dashboard = () => {
         // Transform data for display
         const transformedAttendance = transformAttendanceData(attendanceData || [], studentsData || []);
         const transformedAlerts = transformAlertsData(alertsData || []);
-        const generatedChartData = generateChartData(attendanceData || []);
+        const generatedChartData = generateChartData(attendanceData || [], studentsData || []);
 
         setDisplayAttendance(transformedAttendance);
         setDisplayAlerts(transformedAlerts);
@@ -432,9 +485,9 @@ const DashboardContent = ({ students, displayAttendance, displayAlerts, chartDat
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col min-h-80">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col" style={{ minHeight: '400px' }}>
           <h3 className="text-base md:text-lg font-semibold mb-4">Attendance Chart</h3>
-          <div className="flex-1">
+          <div className="flex-1 relative">
             {chartData.length > 0 ? (
               <AttendanceChart data={chartData} />
             ) : (
@@ -736,63 +789,122 @@ const AlertsList = ({ alerts }) => {
 };
 
 // Attendance Chart Component
+// Fixed Attendance Chart Component
+// Updated Attendance Chart Component that fills the container
+// Fixed Attendance Chart Component with visible bars that fill the container
 const AttendanceChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-gray-500">
+        No chart data available
+      </div>
+    );
+  }
+
   const maxValue = Math.max(...data.map(item => Math.max(item.present, item.absent, item.late)));
   
+  // If maxValue is 0, show a message
+  if (maxValue === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-gray-500">
+        No attendance data to display
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full">
-      {/* Legend at the top */}
-      <div className="flex justify-center mb-4 space-x-4">
+    <div className="w-full h-full flex flex-col">
+      {/* Legend - compact version */}
+      <div className="flex justify-center mb-4 space-x-6">
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-green-500 mr-2 rounded"></div>
-          <span className="text-sm">Present</span>
+          <div className="w-3 h-3 bg-green-500 mr-1.5 rounded"></div>
+          <span className="text-xs font-medium">Present</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-red-500 mr-2 rounded"></div>
-          <span className="text-sm">Absent</span>
+          <div className="w-3 h-3 bg-red-500 mr-1.5 rounded"></div>
+          <span className="text-xs font-medium">Absent</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-yellow-500 mr-2 rounded"></div>
-          <span className="text-sm">Late</span>
+          <div className="w-3 h-3 bg-yellow-500 mr-1.5 rounded"></div>
+          <span className="text-xs font-medium">Late</span>
         </div>
       </div>
       
-      {/* Chart area - fills remaining space */}
-      <div className="flex-1 flex items-end justify-between px-4">
-        {data.map((item, index) => (
-          <div key={index} className="flex-1 flex flex-col items-center">
-            <div className="w-full flex justify-center space-x-1 h-full items-end pb-2">
-              <div 
-                className="bg-green-500 rounded-t transition-all duration-300 hover:opacity-80" 
-                style={{ 
-                  height: `${(item.present / maxValue) * 100}%`,
-                  width: '30%',
-                  minHeight: item.present > 0 ? '4px' : '0px'
-                }}
-                title={`Present: ${item.present}`}
-              ></div>
-              <div 
-                className="bg-red-500 rounded-t transition-all duration-300 hover:opacity-80" 
-                style={{ 
-                  height: `${(item.absent / maxValue) * 100}%`,
-                  width: '30%',
-                  minHeight: item.absent > 0 ? '4px' : '0px'
-                }}
-                title={`Absent: ${item.absent}`}
-              ></div>
-              <div 
-                className="bg-yellow-500 rounded-t transition-all duration-300 hover:opacity-80" 
-                style={{ 
-                  height: `${(item.late / maxValue) * 100}%`,
-                  width: '30%',
-                  minHeight: item.late > 0 ? '4px' : '0px'
-                }}
-                title={`Late: ${item.late}`}
-              ></div>
+      {/* Chart area - uses remaining space with fixed pixel heights */}
+      <div className="flex-1 flex items-end justify-between px-4 relative" style={{ minHeight: '250px' }}>
+        {data.map((item, index) => {
+          // Calculate heights in pixels based on container height
+          const containerHeight = 250; // Fixed height for calculations
+          const presentHeight = Math.max((item.present / maxValue) * containerHeight * 0.8, item.present > 0 ? 8 : 0);
+          const absentHeight = Math.max((item.absent / maxValue) * containerHeight * 0.8, item.absent > 0 ? 8 : 0);
+          const lateHeight = Math.max((item.late / maxValue) * containerHeight * 0.8, item.late > 0 ? 8 : 0);
+          
+          return (
+            <div key={index} className="flex-1 flex flex-col items-center">
+              {/* Bar container */}
+              <div className="w-full flex justify-center items-end space-x-1 mb-3" style={{ height: '200px' }}>
+                {/* Present bar */}
+                <div className="relative group">
+                  <div 
+                    className="bg-green-500 rounded-t-sm transition-all duration-300 hover:bg-green-600 cursor-pointer" 
+                    style={{ 
+                      height: `${presentHeight}px`,
+                      width: '24px',
+                    }}
+                  />
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                    Present: {item.present}
+                  </div>
+                </div>
+                
+                {/* Absent bar */}
+                <div className="relative group">
+                  <div 
+                    className="bg-red-500 rounded-t-sm transition-all duration-300 hover:bg-red-600 cursor-pointer" 
+                    style={{ 
+                      height: `${absentHeight}px`,
+                      width: '24px',
+                    }}
+                  />
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                    Absent: {item.absent}
+                  </div>
+                </div>
+                
+                {/* Late bar */}
+                <div className="relative group">
+                  <div 
+                    className="bg-yellow-500 rounded-t-sm transition-all duration-300 hover:bg-yellow-600 cursor-pointer" 
+                    style={{ 
+                      height: `${lateHeight}px`,
+                      width: '24px',
+                    }}
+                  />
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                    Late: {item.late}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Day label */}
+              <div className="text-sm text-gray-700 font-medium text-center">
+                {item.name.substring(0, 3)}
+              </div>
             </div>
-            <div className="mt-2 text-xs text-gray-500 font-medium">{item.name.substring(0, 3)}</div>
-          </div>
-        ))}
+          );
+        })}
+        
+        {/* Y-axis labels */}
+        <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-xs text-gray-400 pr-2">
+          <span>{maxValue}</span>
+          <span>{Math.round(maxValue * 0.75)}</span>
+          <span>{Math.round(maxValue * 0.5)}</span>
+          <span>{Math.round(maxValue * 0.25)}</span>
+          <span>0</span>
+        </div>
       </div>
     </div>
   );
