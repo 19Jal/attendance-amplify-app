@@ -152,7 +152,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Updated Dashboard Statistics Calculation
   const calculateDashboardStats = (students, displayAttendance) => {
     const totalStudents = students.length;
     
@@ -178,16 +177,15 @@ const Dashboard = () => {
     );
     const lateToday = uniqueLateStudents.size;
     
-    // Calculate absent today (students who have no attendance record for today)
-    const studentsWithTodaysRecord = new Set(todaysAttendance.map(record => record.studentId));
-    const absentToday = Math.max(0, totalStudents - studentsWithTodaysRecord.size);
+    // Calculate absent: total students minus those who were present or late
+    // This includes both students who were explicitly marked absent AND students with no record
+    const absentToday = totalStudents - presentToday - lateToday;
     
     return {
       totalStudents,
       presentToday,
       lateToday,
-      absentToday,
-      todaysAttendance
+      absentToday: Math.max(0, absentToday) // Ensure non-negative
     };
   };
 
@@ -400,15 +398,15 @@ const DashboardContent = ({ students, displayAttendance, displayAlerts, chartDat
     );
     const lateToday = uniqueLateStudents.size;
     
-    // Calculate absent today (students who have no attendance record for today)
-    const studentsWithTodaysRecord = new Set(todaysAttendance.map(record => record.studentId));
-    const absentToday = Math.max(0, totalStudents - studentsWithTodaysRecord.size);
+    // Calculate absent: total students minus those who were present or late
+    // This includes both students who were explicitly marked absent AND students with no record
+    const absentToday = totalStudents - presentToday - lateToday;
     
     return {
       totalStudents,
       presentToday,
       lateToday,
-      absentToday
+      absentToday: Math.max(0, absentToday) // Ensure non-negative
     };
   };
 
