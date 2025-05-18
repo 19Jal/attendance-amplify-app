@@ -663,6 +663,7 @@ const StatCard = ({ title, value, icon, bgColor }) => {
 };
 
 // Attendance List Component
+// Updated Attendance List Component without ID column
 const AttendanceList = React.memo(({ attendances, compact }) => {
   if (attendances.length === 0) {
     return (
@@ -679,7 +680,6 @@ const AttendanceList = React.memo(({ attendances, compact }) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
-                {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>}
                 <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                 <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                 {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>}
@@ -703,10 +703,9 @@ const AttendanceList = React.memo(({ attendances, compact }) => {
   );
 });
 
-// Separate row component for better performance
+// Updated Attendance Row Component without ID column
 const AttendanceRow = React.memo(({ attendance, compact }) => (
   <tr>
-    {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.id}</td>}
     <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
       <div className="flex items-center">
         <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
