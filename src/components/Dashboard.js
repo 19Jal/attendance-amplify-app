@@ -40,11 +40,11 @@ const transformAttendanceData = (attendanceRecords, students) => {
     return {
       id: record.id,
       name: student ? student.name : 'Unknown Student',
+      studentIDNumber: student ? student.studentIDNumber : 'N/A',
       time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
       date: timestamp.toLocaleDateString('en-US'),
       status: record.status === 'PRESENT' ? 'Present' : 
               record.status === 'LATE' ? 'Late' : 'Absent',
-      location: record.location || 'Unknown',
       confidence: record.confidence,
       studentId: record.studentID
     };
@@ -61,7 +61,6 @@ const transformAlertsData = (alerts) => {
       time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
       date: timestamp.toLocaleDateString('en-US'),
       alertType: alert.alertType,
-      location: alert.location || 'Unknown',
       acknowledged: alert.acknowledged,
       imageUrl: alert.imageUrl
     };
@@ -455,14 +454,9 @@ const AlertsContent = ({ displayAlerts }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-        <h2 className="text-xl md:text-2xl font-bold">Security Alerts</h2>
-        <div>
-          <select className="w-full md:w-auto border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>All Alerts</option>
-            <option>Unrecognized Faces</option>
-            <option>Multiple Attendance</option>
-            <option>System Issues</option>
-          </select>
+        <h2 className="text-xl md:text-2xl font-bold">Unknown Face Alerts</h2>
+        <div className="text-sm text-gray-600">
+          All alerts are for unrecognized faces detected in the classroom
         </div>
       </div>
       
@@ -474,7 +468,7 @@ const AlertsContent = ({ displayAlerts }) => {
             <div className="text-gray-500 text-center py-12">
               <BellRing size={48} className="mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-medium mb-2">No Alerts</h3>
-              <p>No security alerts found. This is good news!</p>
+              <p>No unknown face alerts found. This is good news!</p>
             </div>
           )}
         </div>
@@ -662,11 +656,11 @@ const AttendanceList = ({ attendances, compact }) => {
           <thead className="bg-gray-50">
             <tr>
               {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>}
-              <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Person</th>
+              <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
               <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
               {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>}
               <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>}
+              {!compact && <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -680,6 +674,7 @@ const AttendanceList = ({ attendances, compact }) => {
                     </div>
                     <div className="ml-3 md:ml-4">
                       <div className="text-xs md:text-sm font-medium text-gray-900">{attendance.name}</div>
+                      <div className="text-xs text-gray-500">ID: {attendance.studentIDNumber}</div>
                     </div>
                   </div>
                 </td>
@@ -694,7 +689,9 @@ const AttendanceList = ({ attendances, compact }) => {
                     {attendance.status}
                   </span>
                 </td>
-                {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{attendance.location}</td>}
+                {!compact && <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
+                  {attendance.confidence ? `${Math.round(attendance.confidence * 100)}%` : 'N/A'}
+                </td>}
               </tr>
             ))}
           </tbody>
@@ -725,7 +722,17 @@ const AlertsList = ({ alerts }) => {
               <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-0">{alert.time}</p>
             </div>
             <p className="text-xs md:text-sm text-gray-500">{alert.date}</p>
-            {alert.location && <p className="text-xs md:text-sm text-gray-500">Location: {alert.location}</p>}
+            <div className="flex items-center mt-2">
+              {alert.acknowledged ? (
+                <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                  Acknowledged
+                </span>
+              ) : (
+                <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
+                  Unacknowledged
+                </span>
+              )}
+            </div>
           </div>
           <button className="ml-2 text-gray-400 hover:text-gray-500">
             <span className="sr-only">Dismiss</span>

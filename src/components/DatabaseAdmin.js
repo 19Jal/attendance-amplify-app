@@ -243,9 +243,9 @@ const AdminContent = ({
         <div className="bg-blue-50 p-4 rounded-lg">
           <h4 className="font-semibold text-blue-900 mb-2">What gets added:</h4>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>• <strong>Students:</strong> 7 sample students with names, emails, and enrollment numbers</li>
+            <li>• <strong>Students:</strong> 10 sample students with names and student ID numbers</li>
             <li>• <strong>Attendance:</strong> 3-5 attendance records per student over the past week</li>
-            <li>• <strong>Alerts:</strong> 5-8 security alerts of different types</li>
+            <li>• <strong>Alerts:</strong> 4-6 unknown face alerts (unrecognized people detected)</li>
           </ul>
         </div>
       </div>

@@ -40,8 +40,8 @@ export const addStudent = async (studentData) => {
     console.log('Adding student:', studentData);
     
     // Validate required fields
-    if (!studentData.name || !studentData.enrollmentNumber) {
-      throw new Error('Name and enrollment number are required');
+    if (!studentData.name || !studentData.studentIDNumber) {
+      throw new Error('Name and student ID number are required');
     }
     
     const result = await client.graphql({

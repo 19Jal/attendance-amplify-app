@@ -16,8 +16,7 @@ const createStudent = `
     createStudent(input: $input) {
       id
       name
-      email
-      enrollmentNumber
+      studentIDNumber
     }
   }
 `;
@@ -46,11 +45,14 @@ const createAlert = `
 
 // Sample data
 const sampleStudents = [
-  { name: 'John Smith', email: 'john@example.com', enrollmentNumber: 'EN001' },
-  { name: 'Maria Garcia', email: 'maria@example.com', enrollmentNumber: 'EN002' },
-  { name: 'Ahmed Khan', email: 'ahmed@example.com', enrollmentNumber: 'EN003' },
-  { name: 'Sarah Johnson', email: 'sarah@example.com', enrollmentNumber: 'EN004' },
-  { name: 'Li Wei', email: 'li@example.com', enrollmentNumber: 'EN005' }
+  { name: 'John Smith', studentIDNumber: 'STU001' },
+  { name: 'Maria Garcia', studentIDNumber: 'STU002' },
+  { name: 'Ahmed Khan', studentIDNumber: 'STU003' },
+  { name: 'Sarah Johnson', studentIDNumber: 'STU004' },
+  { name: 'Li Wei', studentIDNumber: 'STU005' },
+  { name: 'Olivia Brown', studentIDNumber: 'STU006' },
+  { name: 'Carlos Mendez', studentIDNumber: 'STU007' },
+  { name: 'Emma Wilson', studentIDNumber: 'STU008' }
 ];
 
 async function seedDatabase() {
@@ -66,7 +68,7 @@ async function seedDatabase() {
         variables: { input: studentData }
       });
       addedStudents.push(result.data.createStudent);
-      console.log(`Added student: ${result.data.createStudent.name}`);
+      console.log(`Added student: ${result.data.createStudent.name} (ID: ${result.data.createStudent.studentIDNumber})`);
     }
 
     // Add attendance records
@@ -81,7 +83,6 @@ async function seedDatabase() {
         timestamp.setHours(8 + Math.floor(Math.random() * 3), Math.floor(Math.random() * 60));
 
         const statuses = ['PRESENT', 'LATE'];
-        const locations = ['Main Entrance', 'South Gate', 'North Entrance'];
 
         await client.graphql({
           query: createAttendanceRecord,
@@ -90,7 +91,6 @@ async function seedDatabase() {
               studentID: student.id,
               timestamp: timestamp.toISOString(),
               status: statuses[Math.floor(Math.random() * statuses.length)],
-              location: locations[Math.floor(Math.random() * locations.length)],
               confidence: Math.random() * 0.3 + 0.7
             }
           }
@@ -98,33 +98,34 @@ async function seedDatabase() {
       }
     }
 
-    // Add alerts
-    console.log('Adding alerts...');
-    const alertData = [
-      {
-        message: 'Unrecognized person at entrance',
-        alertType: 'UNKNOWN_FACE',
-        location: 'Main Entrance'
-      },
-      {
-        message: 'System camera disconnected',
-        alertType: 'SYSTEM_ERROR',
-        location: 'South Gate'
-      }
+    // Add unknown face alerts
+    console.log('Adding unknown face alerts...');
+    const alertMessages = [
+      'Unknown person detected in classroom',
+      'Unrecognized face detected during attendance',
+      'Unknown individual entered classroom',
+      'Face not recognized in student database',
+      'Unfamiliar person detected'
     ];
 
-    for (const alert of alertData) {
+    for (let i = 0; i < alertMessages.length; i++) {
+      const daysAgo = Math.floor(Math.random() * 2);
+      const timestamp = new Date();
+      timestamp.setDate(timestamp.getDate() - daysAgo);
+      timestamp.setHours(8 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60));
+
       await client.graphql({
         query: createAlert,
         variables: {
           input: {
-            ...alert,
-            timestamp: new Date().toISOString(),
+            message: alertMessages[i],
+            timestamp: timestamp.toISOString(),
+            alertType: 'UNKNOWN_FACE',
             acknowledged: false
           }
         }
       });
-      console.log(`Added alert: ${alert.message}`);
+      console.log(`Added alert: ${alertMessages[i]}`);
     }
 
     console.log('Database seeding completed successfully!');

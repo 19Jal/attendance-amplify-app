@@ -1,8 +1,7 @@
 type Student @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String!
-  email: String
-  enrollmentNumber: String!
+  studentIDNumber: String!
   createdAt: AWSDateTime
   attendanceRecords: [AttendanceRecord] @hasMany(indexName: "byStudent", fields: ["id"])
 }
@@ -13,7 +12,6 @@ type AttendanceRecord @model @auth(rules: [{ allow: public }]) {
   student: Student @belongsTo(fields: ["studentID"])
   timestamp: AWSDateTime!
   status: AttendanceStatus!
-  location: String
   confidence: Float
   createdAt: AWSDateTime
 }
@@ -23,7 +21,6 @@ type Alert @model @auth(rules: [{ allow: public }]) {
   message: String!
   timestamp: AWSDateTime!
   alertType: AlertType!
-  location: String
   imageUrl: String
   acknowledged: Boolean!
   createdAt: AWSDateTime
@@ -37,6 +34,4 @@ enum AttendanceStatus {
 
 enum AlertType {
   UNKNOWN_FACE
-  SYSTEM_ERROR
-  MULTIPLE_DETECTION
 }

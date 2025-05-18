@@ -17,10 +17,5 @@
       "service": "AppSync"
     }
   },
-  "storage": {
-    "StudentsDB": {
-      "providerPlugin": "awscloudformation",
-      "service": "DynamoDB"
-    }
-  }
+  "storage": {}
 }

@@ -12,9 +12,6 @@
       "AmplifyAppId": "d27ccfk5zdmcn"
     },
     "categories": {
-      "storage": {
-        "StudentsDB": {}
-      },
       "api": {
         "attendanceamplifyapp": {}
       }

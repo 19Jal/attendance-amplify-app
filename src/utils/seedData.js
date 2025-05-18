@@ -2,20 +2,22 @@ import { addStudent, addAttendanceRecord, addAlert } from '../services/api';
 
 // Sample student data
 const sampleStudents = [
-  { name: 'John Smith', email: 'john@example.com', enrollmentNumber: 'EN001' },
-  { name: 'Maria Garcia', email: 'maria@example.com', enrollmentNumber: 'EN002' },
-  { name: 'Ahmed Khan', email: 'ahmed@example.com', enrollmentNumber: 'EN003' },
-  { name: 'Sarah Johnson', email: 'sarah@example.com', enrollmentNumber: 'EN004' },
-  { name: 'Li Wei', email: 'li@example.com', enrollmentNumber: 'EN005' },
-  { name: 'Olivia Brown', email: 'olivia@example.com', enrollmentNumber: 'EN006' },
-  { name: 'Carlos Mendez', email: 'carlos@example.com', enrollmentNumber: 'EN007' }
+  { name: 'John Smith', studentIDNumber: 'STU001' },
+  { name: 'Maria Garcia', studentIDNumber: 'STU002' },
+  { name: 'Ahmed Khan', studentIDNumber: 'STU003' },
+  { name: 'Sarah Johnson', studentIDNumber: 'STU004' },
+  { name: 'Li Wei', studentIDNumber: 'STU005' },
+  { name: 'Olivia Brown', studentIDNumber: 'STU006' },
+  { name: 'Carlos Mendez', studentIDNumber: 'STU007' },
+  { name: 'Emma Wilson', studentIDNumber: 'STU008' },
+  { name: 'David Lee', studentIDNumber: 'STU009' },
+  { name: 'Sophie Chen', studentIDNumber: 'STU010' }
 ];
 
 // Generate random attendance records
 const generateAttendanceRecords = (students) => {
   const records = [];
   const statuses = ['PRESENT', 'LATE', 'ABSENT'];
-  const locations = ['Main Entrance', 'South Gate', 'North Entrance', 'Library Entrance'];
   
   students.forEach(student => {
     // Create 3-5 attendance records for each student over the past week
@@ -34,7 +36,6 @@ const generateAttendanceRecords = (students) => {
         studentID: student.id,
         timestamp: timestamp.toISOString(),
         status: statuses[Math.floor(Math.random() * statuses.length)],
-        location: locations[Math.floor(Math.random() * locations.length)],
         confidence: Math.random() * 0.3 + 0.7 // Between 0.7 and 1.0
       });
     }
@@ -43,23 +44,25 @@ const generateAttendanceRecords = (students) => {
   return records;
 };
 
-// Generate sample alerts
+// Generate sample alerts (only unknown face alerts)
 const generateAlerts = () => {
   const alertMessages = [
-    'Unrecognized person at entrance',
-    'Unknown face detected at south gate',
-    'System camera 2 disconnected',
-    'Multiple faces detected for same person',
-    'Low confidence detection at main entrance'
+    'Unknown person detected in classroom',
+    'Unrecognized face detected during attendance',
+    'Unknown individual entered classroom',
+    'Face not recognized in student database',
+    'Unfamiliar person detected',
+    'Non-registered face identified',
+    'Unknown visitor detected in classroom',
+    'Unidentified person alert',
+    'Face recognition: unknown person',
+    'Alert: Unknown face in attendance area'
   ];
-  
-  const alertTypes = ['UNKNOWN_FACE', 'SYSTEM_ERROR', 'MULTIPLE_DETECTION'];
-  const locations = ['Main Entrance', 'South Gate', 'North Entrance', 'Library Entrance'];
   
   const alerts = [];
   
-  // Generate 5-8 alerts over the past few days
-  const numAlerts = Math.floor(Math.random() * 4) + 5;
+  // Generate 4-6 unknown face alerts over the past few days
+  const numAlerts = Math.floor(Math.random() * 3) + 4;
   
   for (let i = 0; i < numAlerts; i++) {
     const daysAgo = Math.floor(Math.random() * 3);
@@ -73,9 +76,8 @@ const generateAlerts = () => {
     alerts.push({
       message: alertMessages[Math.floor(Math.random() * alertMessages.length)],
       timestamp: timestamp.toISOString(),
-      alertType: alertTypes[Math.floor(Math.random() * alertTypes.length)],
-      location: locations[Math.floor(Math.random() * locations.length)],
-      acknowledged: Math.random() > 0.5 // Random acknowledged status
+      alertType: 'UNKNOWN_FACE', // Only one type now
+      acknowledged: Math.random() > 0.6 // Slightly less likely to be acknowledged
     });
   }
   
@@ -94,7 +96,7 @@ export const seedDatabase = async () => {
       try {
         const student = await addStudent(studentData);
         addedStudents.push(student);
-        console.log(`Added student: ${student.name}`);
+        console.log(`Added student: ${student.name} (ID: ${student.studentIDNumber})`);
       } catch (error) {
         console.error(`Error adding student ${studentData.name}:`, error);
       }
@@ -115,8 +117,8 @@ export const seedDatabase = async () => {
       }
     }
     
-    // Step 3: Add alerts
-    console.log('Adding alerts...');
+    // Step 3: Add alerts (unknown face only)
+    console.log('Adding unknown face alerts...');
     const alerts = generateAlerts();
     for (const alert of alerts) {
       try {
@@ -128,7 +130,7 @@ export const seedDatabase = async () => {
     }
     
     console.log('Database seeding completed successfully!');
-    console.log(`Added ${addedStudents.length} students, ${attendanceRecords.length} attendance records, and ${alerts.length} alerts.`);
+    console.log(`Added ${addedStudents.length} students, ${attendanceRecords.length} attendance records, and ${alerts.length} unknown face alerts.`);
     
     return {
       students: addedStudents.length,
