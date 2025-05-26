@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getAllStudents, getAllAttendanceRecords, getAllAlerts } from '../services/api';
-import { BellRing, Clock, Users, Calendar, AlertTriangle, Download, Search, ChevronRight, CheckCircle, X } from 'lucide-react';
+import { getAllStudents, getAllAttendanceRecords } from '../services/api';
+import { Clock, Users, Calendar, AlertTriangle, Download, Search, ChevronRight, CheckCircle, X } from 'lucide-react';
 
 // Mobile-optimized Avatar Component
 const Avatar = ({ name, size = 40 }) => {
@@ -41,31 +41,16 @@ const transformAttendanceData = (attendanceRecords, students) => {
       studentIDNumber: student ? student.studentIDNumber : 'N/A',
       time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
       date: timestamp.toLocaleDateString('en-US'),
-      status: record.status === 'PRESENT' ? 'Present' : 
-              record.status === 'LATE' ? 'Late' : 'Absent',
+      status: record.status === 'PRESENT' ? 'Present' : 'Absent',
       confidence: record.confidence,
       studentId: record.studentID
     };
   });
 };
 
-const transformAlertsData = (alerts) => {
-  return alerts.map(alert => {
-    const timestamp = new Date(alert.timestamp);
-    
-    return {
-      id: alert.id,
-      message: alert.message,
-      time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
-      date: timestamp.toLocaleDateString('en-US'),
-      alertType: alert.alertType,
-      acknowledged: alert.acknowledged,
-      imageUrl: alert.imageUrl
-    };
-  });
-};
 
-// Generate chart data from attendance records
+
+// Generate chart data from attendance records (Present/Absent only)
 const generateChartData = (attendanceRecords, students) => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const chartData = [];
@@ -90,28 +75,24 @@ const generateChartData = (attendanceRecords, students) => {
     });
 
     const presentStudents = new Set();
-    const lateStudents = new Set();
     const absentStudents = new Set();
 
     dayAttendance.forEach(record => {
       if (record.status === 'PRESENT') {
         presentStudents.add(record.studentID);
-      } else if (record.status === 'LATE') {
-        lateStudents.add(record.studentID);
       } else if (record.status === 'ABSENT') {
         absentStudents.add(record.studentID);
       }
     });
 
     const totalStudents = students.length;
-    const studentsWithRecords = new Set([...presentStudents, ...lateStudents, ...absentStudents]);
+    const studentsWithRecords = new Set([...presentStudents, ...absentStudents]);
     const actualAbsent = totalStudents - studentsWithRecords.size + absentStudents.size;
 
     chartData.push({
       name: dayInfo.dayName,
       present: presentStudents.size,
-      absent: Math.max(0, actualAbsent),
-      late: lateStudents.size
+      absent: Math.max(0, actualAbsent)
     });
   });
 
@@ -121,8 +102,7 @@ const generateChartData = (attendanceRecords, students) => {
       chartData.push({
         name: days[chartData.length],
         present: Math.floor(Math.random() * 50) + 30,
-        absent: Math.floor(Math.random() * 10) + 2,
-        late: Math.floor(Math.random() * 8) + 2
+        absent: Math.floor(Math.random() * 10) + 2
       });
     }
   }
@@ -150,9 +130,7 @@ const StatCard = ({ title, value, icon, bgColor, textColor = "text-gray-800" }) 
 // Mobile-optimized Attendance Card
 const AttendanceCard = ({ attendance }) => {
   const statusColor = 
-    attendance.status === 'Present' ? 'bg-green-100 text-green-800' :
-    attendance.status === 'Late' ? 'bg-yellow-100 text-yellow-800' :
-    'bg-red-100 text-red-800';
+    attendance.status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 mb-3 w-full max-w-full">
@@ -178,7 +156,7 @@ const AttendanceCard = ({ attendance }) => {
 
 // Mobile-optimized Chart Component
 const AttendanceChart = ({ data }) => {
-  const maxValue = Math.max(...data.map(item => Math.max(item.present, item.absent, item.late)));
+  const maxValue = Math.max(...data.map(item => Math.max(item.present, item.absent)));
   
   if (!data || data.length === 0 || maxValue === 0) {
     return (
@@ -206,10 +184,6 @@ const AttendanceChart = ({ data }) => {
           <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
           <span className="text-xs">Absent</span>
         </div>
-        <div className="flex items-center">
-          <div className="w-3 h-3 bg-yellow-500 rounded mr-2"></div>
-          <span className="text-xs">Late</span>
-        </div>
       </div>
       
       <div className="flex-1 w-full min-h-0">
@@ -234,17 +208,16 @@ const AttendanceChart = ({ data }) => {
                 const barContainerHeight = 100; // Use percentage of available height
                 const presentHeight = Math.max((item.present / maxValue) * barContainerHeight, item.present > 0 ? 5 : 0);
                 const absentHeight = Math.max((item.absent / maxValue) * barContainerHeight, item.absent > 0 ? 5 : 0);
-                const lateHeight = Math.max((item.late / maxValue) * barContainerHeight, item.late > 0 ? 5 : 0);
                 
                 return (
                   <div key={index} className="flex flex-col items-center flex-1 h-full">
-                    <div className="flex justify-center items-end gap-0.5 mb-1 relative group flex-1">
+                    <div className="flex justify-center items-end gap-1 mb-1 relative group flex-1">
                       {/* Present bar */}
                       <div 
                         className="bg-green-500 rounded-t cursor-pointer hover:bg-green-600 transition-colors" 
                         style={{ 
                           height: `${presentHeight}%`,
-                          width: '8px'
+                          width: '12px'
                         }}
                         title={`Present: ${item.present}`}
                       />
@@ -253,19 +226,16 @@ const AttendanceChart = ({ data }) => {
                         className="bg-red-500 rounded-t cursor-pointer hover:bg-red-600 transition-colors" 
                         style={{ 
                           height: `${absentHeight}%`,
-                          width: '8px'
+                          width: '12px'
                         }}
                         title={`Absent: ${item.absent}`}
                       />
-                      {/* Late bar */}
-                      <div 
-                        className="bg-yellow-500 rounded-t cursor-pointer hover:bg-yellow-600 transition-colors" 
-                        style={{ 
-                          height: `${lateHeight}%`,
-                          width: '8px'
-                        }}
-                        title={`Late: ${item.late}`}
-                      />
+                      
+                      {/* Tooltip on hover */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                        {item.name}<br/>
+                        Present: {item.present} | Absent: {item.absent}
+                      </div>
                     </div>
                   </div>
                 );
@@ -296,13 +266,11 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
   // State for real data
   const [students, setStudents] = useState([]);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
-  const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Transformed data for display
   const [displayAttendance, setDisplayAttendance] = useState([]);
-  const [displayAlerts, setDisplayAlerts] = useState([]);
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
@@ -311,22 +279,18 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
         setLoading(true);
         setError(null);
         
-        const [studentsData, attendanceData, alertsData] = await Promise.all([
+        const [studentsData, attendanceData] = await Promise.all([
           getAllStudents(),
-          getAllAttendanceRecords(),
-          getAllAlerts()
+          getAllAttendanceRecords()
         ]);
         
         setStudents(studentsData || []);
         setAttendanceRecords(attendanceData || []);
-        setAlerts(alertsData || []);
 
         const transformedAttendance = transformAttendanceData(attendanceData || [], studentsData || []);
-        const transformedAlerts = transformAlertsData(alertsData || []);
         const generatedChartData = generateChartData(attendanceData || [], studentsData || []);
 
         setDisplayAttendance(transformedAttendance);
-        setDisplayAlerts(transformedAlerts);
         setChartData(generatedChartData);
 
       } catch (error) {
@@ -335,9 +299,7 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
         
         setStudents([]);
         setAttendanceRecords([]);
-        setAlerts([]);
         setDisplayAttendance([]);
-        setDisplayAlerts([]);
         setChartData([]);
       } finally {
         setLoading(false);
@@ -359,19 +321,11 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
     );
     const presentToday = uniquePresentStudents.size;
     
-    const uniqueLateStudents = new Set(
-      todaysAttendance
-        .filter(record => record.status === 'Late')
-        .map(record => record.studentId)
-    );
-    const lateToday = uniqueLateStudents.size;
-    
-    const absentToday = totalStudents - presentToday - lateToday;
+    const absentToday = totalStudents - presentToday;
     
     return {
       totalStudents,
       presentToday,
-      lateToday,
       absentToday: Math.max(0, absentToday)
     };
   };
@@ -416,13 +370,11 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
           <DashboardContent 
             students={students}
             displayAttendance={displayAttendance}
-            displayAlerts={displayAlerts}
             chartData={chartData}
             calculateDashboardStats={calculateDashboardStats}
           />
         )}
         {activeTab === 'attendance' && <AttendanceContent displayAttendance={displayAttendance} />}
-        {activeTab === 'alerts' && <AlertsContent displayAlerts={displayAlerts} />}
         {activeTab === 'reports' && <ReportsContent chartData={chartData} />}
       </div>
     </div>
@@ -430,13 +382,13 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
 };
 
 // Dashboard Content Component
-const DashboardContent = ({ students, displayAttendance, displayAlerts, chartData, calculateDashboardStats }) => {
+const DashboardContent = ({ students, displayAttendance, chartData, calculateDashboardStats }) => {
   const stats = calculateDashboardStats(students, displayAttendance);
 
   return (
     <div className="space-y-6 w-full max-w-full">
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full">
         <StatCard 
           title="Total Students" 
           value={stats.totalStudents.toString()} 
@@ -448,12 +400,6 @@ const DashboardContent = ({ students, displayAttendance, displayAlerts, chartDat
           value={stats.presentToday.toString()} 
           icon={<CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />} 
           bgColor="bg-green-100" 
-        />
-        <StatCard 
-          title="Late Today" 
-          value={stats.lateToday.toString()} 
-          icon={<Clock className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500" />} 
-          bgColor="bg-yellow-100" 
         />
         <StatCard 
           title="Absent Today" 
@@ -478,29 +424,13 @@ const DashboardContent = ({ students, displayAttendance, displayAlerts, chartDat
           </div>
           {displayAttendance.length > 0 ? (
             <div className="space-y-3 w-full">
-              {displayAttendance.slice(0, 3).map((attendance) => (
+              {displayAttendance.slice(0, 5).map((attendance) => (
                 <AttendanceCard key={attendance.id} attendance={attendance} />
               ))}
             </div>
           ) : (
             <div className="text-gray-500 text-center py-8">
               No attendance records found
-            </div>
-          )}
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 gap-4 md:gap-6">
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 w-full">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-base md:text-lg font-semibold">Recent Alerts</h3>
-            <ChevronRight size={20} className="text-gray-400 flex-shrink-0" />
-          </div>
-          {displayAlerts.length > 0 ? (
-            <AlertsList alerts={displayAlerts.slice(0, 3)} />
-          ) : (
-            <div className="text-gray-500 text-center py-8">
-              No alerts found
             </div>
           )}
         </div>
@@ -563,33 +493,7 @@ const AttendanceContent = ({ displayAttendance }) => {
   );
 };
 
-// Alerts Content Component
-const AlertsContent = ({ displayAlerts }) => {
-  return (
-    <div className="space-y-6 w-full max-w-full">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-        <h2 className="text-xl md:text-2xl font-bold">Unknown Face Alerts</h2>
-        <div className="text-sm text-gray-600">
-          All alerts are for unrecognized faces detected in the classroom
-        </div>
-      </div>
-      
-      <div className="bg-white rounded-lg shadow-md overflow-hidden w-full">
-        <div className="p-4 md:p-6">
-          {displayAlerts.length > 0 ? (
-            <AlertsList alerts={displayAlerts} />
-          ) : (
-            <div className="text-gray-500 text-center py-12">
-              <BellRing size={48} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium mb-2">No Alerts</h3>
-              <p>No unknown face alerts found. This is good news!</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+
 
 // Reports Content Component
 const ReportsContent = ({ chartData }) => {
@@ -598,7 +502,7 @@ const ReportsContent = ({ chartData }) => {
     { title: 'Weekly Summary', description: 'Weekly statistics', icon: Calendar },
     { title: 'Monthly Report', description: 'Monthly trends', icon: Calendar },
     { title: 'Absence Report', description: 'Details of absences', icon: AlertTriangle },
-    { title: 'Late Arrivals', description: 'Analysis of late arrivals', icon: Clock },
+    { title: 'Student Overview', description: 'Individual student reports', icon: Users },
     { title: 'Custom Report', description: 'Create customized report', icon: Download }
   ];
 
@@ -645,48 +549,7 @@ const ReportsContent = ({ chartData }) => {
   );
 };
 
-// Alerts List Component
-const AlertsList = ({ alerts }) => {
-  if (alerts.length === 0) {
-    return (
-      <div className="text-gray-500 text-center py-8">
-        No alerts to display
-      </div>
-    );
-  }
 
-  return (
-    <div className="space-y-3 md:space-y-4 w-full">
-      {alerts.map((alert) => (
-        <div key={alert.id} className="flex items-start p-3 md:p-4 border rounded-lg bg-red-50 border-red-200 w-full">
-          <AlertTriangle className="h-8 w-8 md:h-12 md:w-12 text-red-500 mr-3 md:mr-4 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col md:flex-row md:justify-between">
-              <p className="font-medium text-red-800 text-sm md:text-base truncate">{alert.message}</p>
-              <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-0 flex-shrink-0">{alert.time}</p>
-            </div>
-            <p className="text-xs md:text-sm text-gray-500">{alert.date}</p>
-            <div className="flex items-center mt-2">
-              {alert.acknowledged ? (
-                <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                  Acknowledged
-                </span>
-              ) : (
-                <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
-                  Unacknowledged
-                </span>
-              )}
-            </div>
-          </div>
-          <button className="ml-2 text-gray-400 hover:text-gray-500 flex-shrink-0">
-            <span className="sr-only">Dismiss</span>
-            <X size={20} />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 // Report Card Component
 const ReportCard = ({ title, description, icon }) => {

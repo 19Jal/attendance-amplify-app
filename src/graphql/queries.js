@@ -85,44 +85,6 @@ export const listAttendanceRecords = /* GraphQL */ `
     }
   }
 `;
-export const getAlert = /* GraphQL */ `
-  query GetAlert($id: ID!) {
-    getAlert(id: $id) {
-      id
-      message
-      timestamp
-      alertType
-      imageUrl
-      acknowledged
-      createdAt
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const listAlerts = /* GraphQL */ `
-  query ListAlerts(
-    $filter: ModelAlertFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listAlerts(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        message
-        timestamp
-        alertType
-        imageUrl
-        acknowledged
-        createdAt
-        updatedAt
-        __typename
-      }
-      nextToken
-      __typename
-    }
-  }
-`;
 export const attendanceRecordsByStudentID = /* GraphQL */ `
   query AttendanceRecordsByStudentID(
     $studentID: ID!

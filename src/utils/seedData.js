@@ -1,4 +1,4 @@
-import { addStudent, addAttendanceRecord, addAlert } from '../services/api';
+import { addStudent, addAttendanceRecord} from '../services/api';
 
 // Sample student data
 const sampleStudents = [
@@ -44,36 +44,6 @@ const generateAttendanceRecords = (students) => {
   return records;
 };
 
-// Generate sample alerts (only unknown face alerts)
-const generateAlerts = () => {
-  const alertMessages = [
-    'Unrecognized face detected during attendance',
-  ];
-  
-  const alerts = [];
-  
-  // Generate 4-6 unknown face alerts over the past few days
-  const numAlerts = Math.floor(Math.random() * 3) + 4;
-  
-  for (let i = 0; i < numAlerts; i++) {
-    const daysAgo = Math.floor(Math.random() * 3);
-    const hours = Math.floor(Math.random() * 12) + 8; // Between 8 AM - 8 PM
-    const minutes = Math.floor(Math.random() * 60);
-    
-    const timestamp = new Date();
-    timestamp.setDate(timestamp.getDate() - daysAgo);
-    timestamp.setHours(hours, minutes, 0, 0);
-    
-    alerts.push({
-      message: alertMessages,
-      timestamp: timestamp.toISOString(),
-      alertType: 'UNKNOWN_FACE', // Only one type now
-      acknowledged: Math.random() > 0.6 // Slightly less likely to be acknowledged
-    });
-  }
-  
-  return alerts;
-};
 
 // Main function to seed the database
 export const seedDatabase = async () => {
@@ -108,25 +78,12 @@ export const seedDatabase = async () => {
       }
     }
     
-    // Step 3: Add alerts (unknown face only)
-    console.log('Adding unknown face alerts...');
-    const alerts = generateAlerts();
-    for (const alert of alerts) {
-      try {
-        await addAlert(alert);
-        console.log(`Added alert: ${alert.message}`);
-      } catch (error) {
-        console.error('Error adding alert:', error);
-      }
-    }
-    
     console.log('Database seeding completed successfully!');
-    console.log(`Added ${addedStudents.length} students, ${attendanceRecords.length} attendance records, and ${alerts.length} unknown face alerts.`);
+    console.log(`Added ${addedStudents.length} students and ${attendanceRecords.length} attendance records`);
     
     return {
       students: addedStudents.length,
       attendanceRecords: attendanceRecords.length,
-      alerts: alerts.length
     };
     
   } catch (error) {
@@ -144,24 +101,22 @@ export const clearDatabase = async () => {
 // Function to check if database has data
 export const checkDatabaseStatus = async () => {
   try {
-    const { getAllStudents, getAllAttendanceRecords, getAllAlerts } = await import('../services/api');
+    const { getAllStudents, getAllAttendanceRecords } = await import('../services/api');
     
-    const [students, attendance, alerts] = await Promise.all([
+    const [students, attendance] = await Promise.all([
       getAllStudents(),
       getAllAttendanceRecords(),
-      getAllAlerts()
     ]);
     
     return {
-      hasData: students.length > 0 || attendance.length > 0 || alerts.length > 0,
+      hasData: students.length > 0 || attendance.length > 0,
       counts: {
         students: students.length,
         attendance: attendance.length,
-        alerts: alerts.length
       }
     };
   } catch (error) {
     console.error('Error checking database status:', error);
-    return { hasData: false, counts: { students: 0, attendance: 0, alerts: 0 } };
+    return { hasData: false, counts: { students: 0, attendance: 0} };
   }
 };

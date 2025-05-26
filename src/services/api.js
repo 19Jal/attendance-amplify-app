@@ -1,5 +1,5 @@
 import { generateClient } from 'aws-amplify/api';
-import { listStudents, getStudent, listAttendanceRecords, listAlerts } from '../graphql/queries';
+import { listStudents, getStudent, listAttendanceRecords} from '../graphql/queries';
 import { createStudent, createAttendanceRecord, createAlert } from '../graphql/mutations';
 
 const client = generateClient();
@@ -100,57 +100,6 @@ export const addAttendanceRecord = async (attendanceData) => {
   } catch (error) {
     console.error('Error creating attendance record:', error);
     console.error('Input data was:', attendanceData);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      graphQLErrors: error.errors
-    });
-    throw error;
-  }
-};
-
-// Alert operations with enhanced error handling
-export const getAllAlerts = async () => {
-  try {
-    console.log('Fetching all alerts...');
-    const result = await client.graphql({ query: listAlerts });
-    console.log('Alerts fetched successfully:', result.data.listAlerts.items);
-    return result.data.listAlerts.items;
-  } catch (error) {
-    console.error('Error fetching alerts:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      graphQLErrors: error.errors
-    });
-    throw error;
-  }
-};
-
-export const addAlert = async (alertData) => {
-  try {
-    console.log('Adding alert:', alertData);
-    
-    // Validate required fields
-    if (!alertData.message || !alertData.timestamp || !alertData.alertType) {
-      throw new Error('message, timestamp, and alertType are required');
-    }
-    
-    // Ensure acknowledged is boolean
-    if (alertData.acknowledged === undefined) {
-      alertData.acknowledged = false;
-    }
-    
-    const result = await client.graphql({
-      query: createAlert,
-      variables: { input: alertData }
-    });
-    
-    console.log('Alert added successfully:', result.data.createAlert);
-    return result.data.createAlert;
-  } catch (error) {
-    console.error('Error creating alert:', error);
-    console.error('Input data was:', alertData);
     console.error('Error details:', {
       message: error.message,
       stack: error.stack,

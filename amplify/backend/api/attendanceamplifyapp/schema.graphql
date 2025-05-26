@@ -16,22 +16,7 @@ type AttendanceRecord @model @auth(rules: [{ allow: public }]) {
   createdAt: AWSDateTime
 }
 
-type Alert @model @auth(rules: [{ allow: public }]) {
-  id: ID!
-  message: String!
-  timestamp: AWSDateTime!
-  alertType: AlertType!
-  imageUrl: String
-  acknowledged: Boolean!
-  createdAt: AWSDateTime
-}
-
 enum AttendanceStatus {
   PRESENT
-  LATE
   ABSENT
-}
-
-enum AlertType {
-  UNKNOWN_FACE
 }

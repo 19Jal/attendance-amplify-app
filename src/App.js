@@ -62,7 +62,6 @@ const Sidebar = ({ currentView, setCurrentView }) => {
   const navItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Dashboard', category: 'main' },
     { id: 'attendance', icon: Users, label: 'Attendance', category: 'main' },
-    { id: 'alerts', icon: BellRing, label: 'Alerts', category: 'main' },
     { id: 'reports', icon: Calendar, label: 'Reports', category: 'main' },
     { id: 'admin', icon: Database, label: 'Database Admin', category: 'admin' }
   ];
@@ -123,7 +122,6 @@ function App() {
     switch (currentView) {
       case 'dashboard': return 'Dashboard';
       case 'attendance': return 'Attendance';
-      case 'alerts': return 'Alerts';
       case 'reports': return 'Reports';
       case 'admin': return 'Database Admin';
       default: return 'Smart Attendance System';
@@ -160,7 +158,6 @@ function App() {
               {[
                 { id: 'dashboard', icon: BarChart3, label: 'Dashboard' },
                 { id: 'attendance', icon: Users, label: 'Attendance' },
-                { id: 'alerts', icon: BellRing, label: 'Alerts' },
                 { id: 'reports', icon: Calendar, label: 'Reports' },
                 { id: 'admin', icon: Database, label: 'Database Admin' }
               ].map((item) => {
