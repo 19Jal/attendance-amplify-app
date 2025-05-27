@@ -8,12 +8,6 @@ export const getFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -40,8 +34,6 @@ export const listFaceIndices = /* GraphQL */ `
         FaceID
         ImageID
         Name
-        Date
-        Time
         createdAt
         updatedAt
         __typename
@@ -52,25 +44,13 @@ export const listFaceIndices = /* GraphQL */ `
   }
 `;
 export const getAttendance = /* GraphQL */ `
-  query GetAttendance($id: ID!) {
-    getAttendance(id: $id) {
-      id
+  query GetAttendance($StudentID: String!) {
+    getAttendance(StudentID: $StudentID) {
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -79,44 +59,20 @@ export const getAttendance = /* GraphQL */ `
 `;
 export const listAttendances = /* GraphQL */ `
   query ListAttendances(
+    $StudentID: String
     $filter: ModelAttendanceFilterInput
     $limit: Int
     $nextToken: String
-  ) {
-    listAttendances(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        StudentID
-        Date
-        Image
-        Name
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
-      nextToken
-      __typename
-    }
-  }
-`;
-export const attendancesByStudentID = /* GraphQL */ `
-  query AttendancesByStudentID(
-    $StudentID: String!
     $sortDirection: ModelSortDirection
-    $filter: ModelAttendanceFilterInput
-    $limit: Int
-    $nextToken: String
   ) {
-    attendancesByStudentID(
+    listAttendances(
       StudentID: $StudentID
-      sortDirection: $sortDirection
       filter: $filter
       limit: $limit
       nextToken: $nextToken
+      sortDirection: $sortDirection
     ) {
       items {
-        id
         StudentID
         Date
         Image

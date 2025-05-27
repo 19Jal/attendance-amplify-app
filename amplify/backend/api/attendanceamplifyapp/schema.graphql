@@ -1,20 +1,15 @@
-# Updated schema to match existing DynamoDB tables
+# Schema for imported existing tables
 type FaceIndex @model @auth(rules: [{ allow: public }]) {
   StudentID: String! @primaryKey
-  FaceID: String
-  ImageID: String
+  FaceID: String!
+  ImageID: String!  
   Name: String!
-  Date: String!
-  Time: String!
-  attendanceRecords: [Attendance] @hasMany(indexName: "byStudentID", fields: ["StudentID"])
 }
 
 type Attendance @model @auth(rules: [{ allow: public }]) {
-  id: ID!
-  StudentID: String! @index(name: "byStudentID")
-  Date: String!
+  StudentID: String! @primaryKey
+  Date: String! 
   Image: String
   Name: String!
   Time: String!
-  faceIndex: FaceIndex @belongsTo(fields: ["StudentID"])
 }

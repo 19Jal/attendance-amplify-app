@@ -11,12 +11,6 @@ export const createFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -33,12 +27,6 @@ export const updateFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -55,12 +43,6 @@ export const deleteFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -73,23 +55,11 @@ export const createAttendance = /* GraphQL */ `
     $condition: ModelAttendanceConditionInput
   ) {
     createAttendance(input: $input, condition: $condition) {
-      id
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -102,23 +72,11 @@ export const updateAttendance = /* GraphQL */ `
     $condition: ModelAttendanceConditionInput
   ) {
     updateAttendance(input: $input, condition: $condition) {
-      id
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -131,23 +89,11 @@ export const deleteAttendance = /* GraphQL */ `
     $condition: ModelAttendanceConditionInput
   ) {
     deleteAttendance(input: $input, condition: $condition) {
-      id
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename

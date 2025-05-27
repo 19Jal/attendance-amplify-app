@@ -10,12 +10,6 @@ export const onCreateFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -31,12 +25,6 @@ export const onUpdateFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -52,12 +40,6 @@ export const onDeleteFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      Date
-      Time
-      attendanceRecords {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -69,23 +51,11 @@ export const onCreateAttendance = /* GraphQL */ `
     $filter: ModelSubscriptionAttendanceFilterInput
   ) {
     onCreateAttendance(filter: $filter) {
-      id
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -97,23 +67,11 @@ export const onUpdateAttendance = /* GraphQL */ `
     $filter: ModelSubscriptionAttendanceFilterInput
   ) {
     onUpdateAttendance(filter: $filter) {
-      id
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename
@@ -125,23 +83,11 @@ export const onDeleteAttendance = /* GraphQL */ `
     $filter: ModelSubscriptionAttendanceFilterInput
   ) {
     onDeleteAttendance(filter: $filter) {
-      id
       StudentID
       Date
       Image
       Name
       Time
-      faceIndex {
-        StudentID
-        FaceID
-        ImageID
-        Name
-        Date
-        Time
-        createdAt
-        updatedAt
-        __typename
-      }
       createdAt
       updatedAt
       __typename
