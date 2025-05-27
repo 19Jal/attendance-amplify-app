@@ -1,49 +1,8 @@
-// Simple Node.js script to seed the database
-// Run this script with: node scripts/seedData.js
+// src/utils/seedData.js - Updated for existing FaceIndex and Attendance tables
 
-import { Amplify } from 'aws-amplify';
-import { generateClient } from 'aws-amplify/api';
-import awsconfig from '../src/aws-exports.js';
+import { addStudent, addAttendanceRecord } from '../services/api';
 
-// Configure Amplify
-Amplify.configure(awsconfig);
-
-const client = generateClient();
-
-// GraphQL mutations
-const createStudent = `
-  mutation CreateStudent($input: CreateStudentInput!) {
-    createStudent(input: $input) {
-      id
-      name
-      studentIDNumber
-    }
-  }
-`;
-
-const createAttendanceRecord = `
-  mutation CreateAttendanceRecord($input: CreateAttendanceRecordInput!) {
-    createAttendanceRecord(input: $input) {
-      id
-      studentID
-      timestamp
-      status
-    }
-  }
-`;
-
-const createAlert = `
-  mutation CreateAlert($input: CreateAlertInput!) {
-    createAlert(input: $input) {
-      id
-      message
-      timestamp
-      alertType
-    }
-  }
-`;
-
-// Sample data
+// Sample student data
 const sampleStudents = [
   { name: 'John Smith', studentIDNumber: 'STU001' },
   { name: 'Maria Garcia', studentIDNumber: 'STU002' },
@@ -52,87 +11,109 @@ const sampleStudents = [
   { name: 'Li Wei', studentIDNumber: 'STU005' },
   { name: 'Olivia Brown', studentIDNumber: 'STU006' },
   { name: 'Carlos Mendez', studentIDNumber: 'STU007' },
-  { name: 'Emma Wilson', studentIDNumber: 'STU008' }
+  { name: 'Emma Wilson', studentIDNumber: 'STU008' },
+  { name: 'David Lee', studentIDNumber: 'STU009' },
+  { name: 'Sophie Chen', studentIDNumber: 'STU010' }
 ];
 
-async function seedDatabase() {
+// Main function to seed the database
+export const seedDatabase = async () => {
   try {
     console.log('Starting database seeding...');
-
-    // Add students
-    console.log('Adding students...');
+    
+    // Add students to FaceIndex table
+    console.log('Adding students to FaceIndex table...');
     const addedStudents = [];
     for (const studentData of sampleStudents) {
-      const result = await client.graphql({
-        query: createStudent,
-        variables: { input: studentData }
-      });
-      addedStudents.push(result.data.createStudent);
-      console.log(`Added student: ${result.data.createStudent.name} (ID: ${result.data.createStudent.studentIDNumber})`);
+      try {
+        const student = await addStudent(studentData);
+        addedStudents.push(student);
+        console.log(`Added student: ${student.name} (ID: ${student.studentIDNumber})`);
+      } catch (error) {
+        console.error(`Error adding student ${studentData.name}:`, error);
+      }
     }
-
+    
     // Add attendance records
     console.log('Adding attendance records...');
+    let attendanceCount = 0;
+    
     for (const student of addedStudents) {
       // Add 2-3 attendance records per student
       const numRecords = Math.floor(Math.random() * 2) + 2;
+      
       for (let i = 0; i < numRecords; i++) {
-        const daysAgo = Math.floor(Math.random() * 7);
-        const timestamp = new Date();
-        timestamp.setDate(timestamp.getDate() - daysAgo);
-        timestamp.setHours(8 + Math.floor(Math.random() * 3), Math.floor(Math.random() * 60));
-
-        const statuses = ['PRESENT', 'LATE'];
-
-        await client.graphql({
-          query: createAttendanceRecord,
-          variables: {
-            input: {
-              studentID: student.id,
-              timestamp: timestamp.toISOString(),
-              status: statuses[Math.floor(Math.random() * statuses.length)],
-              confidence: Math.random() * 0.3 + 0.7
-            }
-          }
-        });
+        try {
+          const daysAgo = Math.floor(Math.random() * 7);
+          const date = new Date();
+          date.setDate(date.getDate() - daysAgo);
+          
+          const hour = 8 + Math.floor(Math.random() * 3); // Between 8-10 AM
+          const minute = Math.floor(Math.random() * 60);
+          const second = Math.floor(Math.random() * 60);
+          
+          const attendanceData = {
+            studentID: student.studentIDNumber,
+            name: student.name,
+            date: date.toISOString().split('T')[0], // YYYY-MM-DD
+            time: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`,
+            image: `capture_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`
+          };
+          
+          await addAttendanceRecord(attendanceData);
+          attendanceCount++;
+          
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+        } catch (error) {
+          console.error(`Error adding attendance for ${student.name}:`, error);
+          console.error('Attendance data that failed:', attendanceData);
+          // Continue to next record instead of stopping
+        }
       }
     }
-
-    // Add unknown face alerts
-    console.log('Adding unknown face alerts...');
-    const alertMessages = [
-      'Unknown person detected in classroom',
-      'Unrecognized face detected during attendance',
-      'Unknown individual entered classroom',
-      'Face not recognized in student database',
-      'Unfamiliar person detected'
-    ];
-
-    for (let i = 0; i < alertMessages.length; i++) {
-      const daysAgo = Math.floor(Math.random() * 2);
-      const timestamp = new Date();
-      timestamp.setDate(timestamp.getDate() - daysAgo);
-      timestamp.setHours(8 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60));
-
-      await client.graphql({
-        query: createAlert,
-        variables: {
-          input: {
-            message: alertMessages[i],
-            timestamp: timestamp.toISOString(),
-            alertType: 'UNKNOWN_FACE',
-            acknowledged: false
-          }
-        }
-      });
-      console.log(`Added alert: ${alertMessages[i]}`);
-    }
-
+    
     console.log('Database seeding completed successfully!');
+    console.log(`Added ${addedStudents.length} students and ${attendanceCount} attendance records.`);
+    
+    return {
+      students: addedStudents.length,
+      attendanceRecords: attendanceCount,
+      alerts: 0 // No alerts table in current schema
+    };
+    
   } catch (error) {
     console.error('Error seeding database:', error);
+    throw error;
   }
-}
+};
 
-// Run the seeding function
-seedDatabase();
+// Function to clear all data (use with caution!)
+export const clearDatabase = async () => {
+  console.log('Warning: clearDatabase function is not implemented for safety reasons.');
+  console.log('To clear data, use the AWS Console or Amplify Admin UI.');
+};
+
+// Function to check if database has data
+export const checkDatabaseStatus = async () => {
+  try {
+    const { getAllStudents, getAllAttendanceRecords } = await import('../services/api');
+    
+    const [students, attendance] = await Promise.all([
+      getAllStudents(),
+      getAllAttendanceRecords()
+    ]);
+    
+    return {
+      hasData: students.length > 0 || attendance.length > 0,
+      counts: {
+        students: students.length,
+        attendance: attendance.length
+      }
+    };
+  } catch (error) {
+    console.error('Error checking database status:', error);
+    return { hasData: false, counts: { students: 0, attendance: 0 } };
+  }
+};

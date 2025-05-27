@@ -50,6 +50,24 @@
     "categories": {
       "api": {
         "attendanceamplifyapp": {}
+      },
+      "storage": {
+        "Attendance": {
+          "tableName": "Attendance",
+          "region": "us-east-1",
+          "arn": "arn:aws:dynamodb:us-east-1:702975096997:table/Attendance",
+          "partitionKeyName": "StudentID",
+          "partitionKeyType": "S",
+          "sortKeyName": "Date",
+          "sortKeyType": "S"
+        },
+        "FaceIndex": {
+          "tableName": "FaceIndex",
+          "region": "us-east-1",
+          "arn": "arn:aws:dynamodb:us-east-1:702975096997:table/FaceIndex",
+          "partitionKeyName": "StudentID",
+          "partitionKeyType": "S"
+        }
       }
     }
   }

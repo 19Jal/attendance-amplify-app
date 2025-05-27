@@ -1,5 +1,3 @@
-// src/graphql/mutations.js - Final correct version for actual table structure
-
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
@@ -13,17 +11,18 @@ export const createFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      createdAt
+      Date
+      Time
       attendanceRecords {
         nextToken
         __typename
       }
+      createdAt
       updatedAt
       __typename
     }
   }
 `;
-
 export const updateFaceIndex = /* GraphQL */ `
   mutation UpdateFaceIndex(
     $input: UpdateFaceIndexInput!
@@ -34,17 +33,18 @@ export const updateFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      createdAt
+      Date
+      Time
       attendanceRecords {
         nextToken
         __typename
       }
+      createdAt
       updatedAt
       __typename
     }
   }
 `;
-
 export const deleteFaceIndex = /* GraphQL */ `
   mutation DeleteFaceIndex(
     $input: DeleteFaceIndexInput!
@@ -55,17 +55,18 @@ export const deleteFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      createdAt
+      Date
+      Time
       attendanceRecords {
         nextToken
         __typename
       }
+      createdAt
       updatedAt
       __typename
     }
   }
 `;
-
 export const createAttendance = /* GraphQL */ `
   mutation CreateAttendance(
     $input: CreateAttendanceInput!
@@ -83,6 +84,8 @@ export const createAttendance = /* GraphQL */ `
         FaceID
         ImageID
         Name
+        Date
+        Time
         createdAt
         updatedAt
         __typename
@@ -93,7 +96,6 @@ export const createAttendance = /* GraphQL */ `
     }
   }
 `;
-
 export const updateAttendance = /* GraphQL */ `
   mutation UpdateAttendance(
     $input: UpdateAttendanceInput!
@@ -111,6 +113,8 @@ export const updateAttendance = /* GraphQL */ `
         FaceID
         ImageID
         Name
+        Date
+        Time
         createdAt
         updatedAt
         __typename
@@ -121,7 +125,6 @@ export const updateAttendance = /* GraphQL */ `
     }
   }
 `;
-
 export const deleteAttendance = /* GraphQL */ `
   mutation DeleteAttendance(
     $input: DeleteAttendanceInput!
@@ -139,6 +142,8 @@ export const deleteAttendance = /* GraphQL */ `
         FaceID
         ImageID
         Name
+        Date
+        Time
         createdAt
         updatedAt
         __typename

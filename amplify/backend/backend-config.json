@@ -17,5 +17,116 @@
       "service": "AppSync"
     }
   },
-  "storage": {}
+  "parameters": {
+    "AMPLIFY_storage_Attendance_arn": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_Attendance_partitionKeyName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_Attendance_partitionKeyType": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_Attendance_region": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_Attendance_sortKeyName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_Attendance_sortKeyType": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_Attendance_tableName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "Attendance"
+        }
+      ]
+    },
+    "AMPLIFY_storage_FaceIndex_arn": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "FaceIndex"
+        }
+      ]
+    },
+    "AMPLIFY_storage_FaceIndex_partitionKeyName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "FaceIndex"
+        }
+      ]
+    },
+    "AMPLIFY_storage_FaceIndex_partitionKeyType": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "FaceIndex"
+        }
+      ]
+    },
+    "AMPLIFY_storage_FaceIndex_region": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "FaceIndex"
+        }
+      ]
+    },
+    "AMPLIFY_storage_FaceIndex_tableName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "FaceIndex"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "Attendance": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB",
+      "serviceType": "imported"
+    },
+    "FaceIndex": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB",
+      "serviceType": "imported"
+    }
+  }
 }

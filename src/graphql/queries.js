@@ -1,5 +1,3 @@
-// src/graphql/queries.js - Final correct version for actual table structure
-
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
@@ -10,29 +8,40 @@ export const getFaceIndex = /* GraphQL */ `
       FaceID
       ImageID
       Name
-      createdAt
+      Date
+      Time
       attendanceRecords {
         nextToken
         __typename
       }
+      createdAt
       updatedAt
       __typename
     }
   }
 `;
-
-export const listFaceIndexes = /* GraphQL */ `
-  query ListFaceIndexes(
+export const listFaceIndices = /* GraphQL */ `
+  query ListFaceIndices(
+    $StudentID: String
     $filter: ModelFaceIndexFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    listFaceIndexes(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listFaceIndices(
+      StudentID: $StudentID
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
       items {
         StudentID
         FaceID
         ImageID
         Name
+        Date
+        Time
         createdAt
         updatedAt
         __typename
@@ -42,7 +51,6 @@ export const listFaceIndexes = /* GraphQL */ `
     }
   }
 `;
-
 export const getAttendance = /* GraphQL */ `
   query GetAttendance($id: ID!) {
     getAttendance(id: $id) {
@@ -57,6 +65,8 @@ export const getAttendance = /* GraphQL */ `
         FaceID
         ImageID
         Name
+        Date
+        Time
         createdAt
         updatedAt
         __typename
@@ -67,7 +77,6 @@ export const getAttendance = /* GraphQL */ `
     }
   }
 `;
-
 export const listAttendances = /* GraphQL */ `
   query ListAttendances(
     $filter: ModelAttendanceFilterInput
@@ -91,7 +100,6 @@ export const listAttendances = /* GraphQL */ `
     }
   }
 `;
-
 export const attendancesByStudentID = /* GraphQL */ `
   query AttendancesByStudentID(
     $StudentID: String!

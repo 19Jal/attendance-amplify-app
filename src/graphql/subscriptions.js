@@ -6,11 +6,16 @@ export const onCreateFaceIndex = /* GraphQL */ `
     $filter: ModelSubscriptionFaceIndexFilterInput
   ) {
     onCreateFaceIndex(filter: $filter) {
-      id
+      StudentID
+      FaceID
+      ImageID
       Name
-      studentID
       Date
       Time
+      attendanceRecords {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -22,11 +27,16 @@ export const onUpdateFaceIndex = /* GraphQL */ `
     $filter: ModelSubscriptionFaceIndexFilterInput
   ) {
     onUpdateFaceIndex(filter: $filter) {
-      id
+      StudentID
+      FaceID
+      ImageID
       Name
-      studentID
       Date
       Time
+      attendanceRecords {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -38,11 +48,16 @@ export const onDeleteFaceIndex = /* GraphQL */ `
     $filter: ModelSubscriptionFaceIndexFilterInput
   ) {
     onDeleteFaceIndex(filter: $filter) {
-      id
+      StudentID
+      FaceID
+      ImageID
       Name
-      studentID
       Date
       Time
+      attendanceRecords {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -56,7 +71,21 @@ export const onCreateAttendance = /* GraphQL */ `
     onCreateAttendance(filter: $filter) {
       id
       StudentID
+      Date
+      Image
       Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
+        Date
+        Time
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -70,7 +99,21 @@ export const onUpdateAttendance = /* GraphQL */ `
     onUpdateAttendance(filter: $filter) {
       id
       StudentID
+      Date
+      Image
       Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
+        Date
+        Time
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -84,7 +127,21 @@ export const onDeleteAttendance = /* GraphQL */ `
     onDeleteAttendance(filter: $filter) {
       id
       StudentID
+      Date
+      Image
       Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
+        Date
+        Time
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
       __typename

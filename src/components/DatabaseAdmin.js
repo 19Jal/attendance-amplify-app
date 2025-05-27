@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import { seedDatabase, checkDatabaseStatus } from '../utils/seedData';
 import DiagnosticPanel from './DiagnosticPanel';
 import ConnectionTest from './ConnectionTest';
-import { Database, RefreshCw, CheckCircle, AlertCircle, Users, Clock, Bell, Settings, Wifi } from 'lucide-react';
+import { Database, RefreshCw, CheckCircle, AlertCircle, Users, Clock, Settings, Wifi, Download, Upload, Search } from 'lucide-react';
 
 const DatabaseAdmin = () => {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const [seedResult, setSeedResult] = useState(null);
   const [dbStatus, setDbStatus] = useState(null);
+  const [importResult, setImportResult] = useState(null);
+  const [existingTablesInfo, setExistingTablesInfo] = useState(null);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('admin'); // 'admin' or 'diagnostics'
+  const [activeTab, setActiveTab] = useState('admin');
 
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
@@ -104,7 +108,7 @@ const DatabaseAdmin = () => {
   );
 };
 
-// Extracted Admin Content Component
+// Original Admin Content Component
 const AdminContent = ({ 
   isSeeding, 
   isChecking, 
@@ -125,7 +129,7 @@ const AdminContent = ({
         {/* Database Status Section */}
         <div className="border rounded-lg p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Database Status</h3>
+            <h3 className="text-lg font-semibold">Current Database Status</h3>
             <button
               onClick={handleCheckStatus}
               disabled={isChecking}
@@ -137,12 +141,12 @@ const AdminContent = ({
           </div>
 
           {dbStatus && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="flex items-center">
                   <Users className="h-6 w-6 text-blue-600 mr-2" />
                   <div>
-                    <p className="text-sm text-gray-600">Face Indexes (Students)</p>
+                    <p className="text-sm text-gray-600">Students</p>
                     <p className="text-2xl font-bold text-blue-600">{dbStatus.counts.students}</p>
                   </div>
                 </div>
@@ -178,10 +182,9 @@ const AdminContent = ({
 
         {/* Seed Database Section */}
         <div className="border rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-4">Seed Database</h3>
+          <h3 className="text-lg font-semibold mb-4">Add Sample Data</h3>
           <p className="text-gray-600 mb-4">
-            This will add sample data to your database including students, attendance records, and alerts.
-            Use this to populate your database for testing and demonstration purposes.
+            Add sample students and attendance records for testing. This uses the new Student table.
           </p>
           
           <button
@@ -190,19 +193,18 @@ const AdminContent = ({
             className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
             <Database className={`h-5 w-5 mr-2 ${isSeeding ? 'animate-pulse' : ''}`} />
-            {isSeeding ? 'Seeding Database...' : 'Seed Database'}
+            {isSeeding ? 'Adding Sample Data...' : 'Add Sample Data'}
           </button>
 
           {seedResult && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center mb-2">
                 <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                <span className="font-semibold text-green-800">Seeding Completed Successfully!</span>
+                <span className="font-semibold text-green-800">Sample Data Added Successfully!</span>
               </div>
               <ul className="text-sm text-green-700 space-y-1">
                 <li>• {seedResult.students} students added</li>
                 <li>• {seedResult.attendanceRecords} attendance records added</li>
-                <li>• {seedResult.alerts} alerts added</li>
               </ul>
             </div>
           )}
@@ -218,27 +220,6 @@ const AdminContent = ({
             <p className="text-red-700 mt-1">{error}</p>
           </div>
         )}
-
-        {/* Instructions */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-900 mb-2">Instructions:</h4>
-          <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
-            <li>First, check the database status to see if you already have data</li>
-            <li>If the database is empty, use "Seed Database" to add sample data</li>
-            <li>Navigate to the Dashboard to see your populated data</li>
-            <li>You can seed the database multiple times (it will add more data)</li>
-          </ol>
-        </div>
-
-        {/* Additional Information */}
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-blue-900 mb-2">What gets added:</h4>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• <strong>Students:</strong> 10 sample students with names and student ID numbers</li>
-            <li>• <strong>Attendance:</strong> 3-5 attendance records per student over the past week</li>
-            <li>• <strong>Alerts:</strong> 4-6 unknown face alerts (unrecognized people detected)</li>
-          </ul>
-        </div>
       </div>
     </div>
   );

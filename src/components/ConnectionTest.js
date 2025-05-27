@@ -66,12 +66,11 @@ const ConnectionTest = () => {
         },
         body: JSON.stringify({
           query: `
-            query ListStudents {
-              listStudents {
+            query ListFaceIndices {
+              listFaceIndices {
                 items {
-                  id
-                  name
-                  studentIDNumber
+                  StudentID
+                  Name
                 }
               }
             }
@@ -84,7 +83,7 @@ const ConnectionTest = () => {
       if (response.ok && !result.errors) {
         addResult('Direct GraphQL', 'success', 'GraphQL endpoint reachable', {
           status: response.status,
-          itemCount: result.data?.listStudents?.items?.length || 0
+          itemCount: result.data?.listFaceIndices?.items?.length || 0
         });
       } else {
         addResult('Direct GraphQL', 'error', 'GraphQL request failed', {
@@ -103,11 +102,11 @@ const ConnectionTest = () => {
       
       const result = await client.graphql({
         query: `
-          query ListStudents {
-            listStudents {
+          query ListFaceIndices {
+            listFaceIndices {
               items {
-                id
-                name
+                StudentID
+                Name
               }
             }
           }
@@ -115,7 +114,7 @@ const ConnectionTest = () => {
       });
 
       addResult('Amplify Client', 'success', 'Amplify GraphQL client working', {
-        itemCount: result.data?.listStudents?.items?.length || 0
+        itemCount: result.data?.listFaceIndices?.items?.length || 0
       });
     } catch (error) {
       addResult('Amplify Client', 'error', 'Amplify client error', error.message);
