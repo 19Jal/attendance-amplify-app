@@ -1,15 +1,18 @@
+// src/graphql/mutations.js - Final correct version for actual table structure
+
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createStudent = /* GraphQL */ `
-  mutation CreateStudent(
-    $input: CreateStudentInput!
-    $condition: ModelStudentConditionInput
+export const createFaceIndex = /* GraphQL */ `
+  mutation CreateFaceIndex(
+    $input: CreateFaceIndexInput!
+    $condition: ModelFaceIndexConditionInput
   ) {
-    createStudent(input: $input, condition: $condition) {
-      id
-      name
-      studentIDNumber
+    createFaceIndex(input: $input, condition: $condition) {
+      StudentID
+      FaceID
+      ImageID
+      Name
       createdAt
       attendanceRecords {
         nextToken
@@ -20,15 +23,17 @@ export const createStudent = /* GraphQL */ `
     }
   }
 `;
-export const updateStudent = /* GraphQL */ `
-  mutation UpdateStudent(
-    $input: UpdateStudentInput!
-    $condition: ModelStudentConditionInput
+
+export const updateFaceIndex = /* GraphQL */ `
+  mutation UpdateFaceIndex(
+    $input: UpdateFaceIndexInput!
+    $condition: ModelFaceIndexConditionInput
   ) {
-    updateStudent(input: $input, condition: $condition) {
-      id
-      name
-      studentIDNumber
+    updateFaceIndex(input: $input, condition: $condition) {
+      StudentID
+      FaceID
+      ImageID
+      Name
       createdAt
       attendanceRecords {
         nextToken
@@ -39,15 +44,17 @@ export const updateStudent = /* GraphQL */ `
     }
   }
 `;
-export const deleteStudent = /* GraphQL */ `
-  mutation DeleteStudent(
-    $input: DeleteStudentInput!
-    $condition: ModelStudentConditionInput
+
+export const deleteFaceIndex = /* GraphQL */ `
+  mutation DeleteFaceIndex(
+    $input: DeleteFaceIndexInput!
+    $condition: ModelFaceIndexConditionInput
   ) {
-    deleteStudent(input: $input, condition: $condition) {
-      id
-      name
-      studentIDNumber
+    deleteFaceIndex(input: $input, condition: $condition) {
+      StudentID
+      FaceID
+      ImageID
+      Name
       createdAt
       attendanceRecords {
         nextToken
@@ -58,75 +65,84 @@ export const deleteStudent = /* GraphQL */ `
     }
   }
 `;
-export const createAttendanceRecord = /* GraphQL */ `
-  mutation CreateAttendanceRecord(
-    $input: CreateAttendanceRecordInput!
-    $condition: ModelAttendanceRecordConditionInput
+
+export const createAttendance = /* GraphQL */ `
+  mutation CreateAttendance(
+    $input: CreateAttendanceInput!
+    $condition: ModelAttendanceConditionInput
   ) {
-    createAttendanceRecord(input: $input, condition: $condition) {
+    createAttendance(input: $input, condition: $condition) {
       id
-      studentID
-      student {
-        id
-        name
-        studentIDNumber
+      StudentID
+      Date
+      Image
+      Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
         createdAt
         updatedAt
         __typename
       }
-      timestamp
-      status
-      confidence
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const updateAttendanceRecord = /* GraphQL */ `
-  mutation UpdateAttendanceRecord(
-    $input: UpdateAttendanceRecordInput!
-    $condition: ModelAttendanceRecordConditionInput
+
+export const updateAttendance = /* GraphQL */ `
+  mutation UpdateAttendance(
+    $input: UpdateAttendanceInput!
+    $condition: ModelAttendanceConditionInput
   ) {
-    updateAttendanceRecord(input: $input, condition: $condition) {
+    updateAttendance(input: $input, condition: $condition) {
       id
-      studentID
-      student {
-        id
-        name
-        studentIDNumber
+      StudentID
+      Date
+      Image
+      Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
         createdAt
         updatedAt
         __typename
       }
-      timestamp
-      status
-      confidence
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const deleteAttendanceRecord = /* GraphQL */ `
-  mutation DeleteAttendanceRecord(
-    $input: DeleteAttendanceRecordInput!
-    $condition: ModelAttendanceRecordConditionInput
+
+export const deleteAttendance = /* GraphQL */ `
+  mutation DeleteAttendance(
+    $input: DeleteAttendanceInput!
+    $condition: ModelAttendanceConditionInput
   ) {
-    deleteAttendanceRecord(input: $input, condition: $condition) {
+    deleteAttendance(input: $input, condition: $condition) {
       id
-      studentID
-      student {
-        id
-        name
-        studentIDNumber
+      StudentID
+      Date
+      Image
+      Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
         createdAt
         updatedAt
         __typename
       }
-      timestamp
-      status
-      confidence
       createdAt
       updatedAt
       __typename

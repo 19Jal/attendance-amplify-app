@@ -54,18 +54,26 @@ const DiagnosticPanel = () => {
       try {
         const testStudent = {
           name: 'Test Student ' + Date.now(),
-          email: 'test@example.com',
-          enrollmentNumber: 'TEST' + Date.now()
+          studentIDNumber: 'TEST' + Date.now()
         };
         
         const result = await addStudent(testStudent);
-        if (result && result.id) {
+        console.log('Student creation result:', result); // Debug log
+        
+        // Check if we got a valid result with required fields
+        if (result?.id && result?.name) {
           addTestResult('Create Student', true, 'Student created successfully', {
             id: result.id,
-            name: result.name
+            name: result.name,
+            studentIDNumber: result.studentIDNumber || 'N/A'
           });
         } else {
-          addTestResult('Create Student', false, 'Student creation returned unexpected result', result);
+          // This shouldn't happen based on your result, but let's see
+          addTestResult('Create Student', false, 'Student creation returned incomplete result', {
+            hasId: !!result?.id,
+            hasName: !!result?.name,
+            result: result
+          });
         }
       } catch (error) {
         addTestResult('Create Student', false, 'Student creation failed', error.message);

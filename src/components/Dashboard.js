@@ -32,7 +32,9 @@ const Avatar = ({ name, size = 40 }) => {
 // Data transformation functions
 const transformAttendanceData = (attendanceRecords, students) => {
   return attendanceRecords.map(record => {
-    const student = students.find(s => s.id === record.studentID);
+    // Handle both old (studentID) and new (faceIndexID) structures
+    const studentId = record.studentID || record.faceIndexID;
+    const student = students.find(s => s.id === studentId) || record.faceIndex;
     const timestamp = new Date(record.timestamp);
     
     return {
@@ -41,14 +43,12 @@ const transformAttendanceData = (attendanceRecords, students) => {
       studentIDNumber: student ? student.studentIDNumber : 'N/A',
       time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
       date: timestamp.toLocaleDateString('en-US'),
-      status: record.status === 'PRESENT' ? 'Present' : 'Absent',
+      status: record.status === 'PRESENT' ? 'Present' : 'Absent', // Removed LATE option
       confidence: record.confidence,
-      studentId: record.studentID
+      studentId: studentId
     };
   });
 };
-
-
 
 // Generate chart data from attendance records (Present/Absent only)
 const generateChartData = (attendanceRecords, students) => {

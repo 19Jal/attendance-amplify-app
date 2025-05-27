@@ -1,22 +1,6 @@
+# Minimal schema - no conflicts
 type Student @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String!
   studentIDNumber: String!
-  createdAt: AWSDateTime
-  attendanceRecords: [AttendanceRecord] @hasMany(indexName: "byStudent", fields: ["id"])
-}
-
-type AttendanceRecord @model @auth(rules: [{ allow: public }]) {
-  id: ID!
-  studentID: ID! @index(name: "byStudent")
-  student: Student @belongsTo(fields: ["studentID"])
-  timestamp: AWSDateTime!
-  status: AttendanceStatus!
-  confidence: Float
-  createdAt: AWSDateTime
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
 }

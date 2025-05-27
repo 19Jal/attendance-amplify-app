@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import DatabaseAdmin from './components/DatabaseAdmin';
 import { checkDatabaseStatus } from './utils/seedData';
-import { Database, BarChart3, Menu, X, BellRing, Users, Calendar } from 'lucide-react';
+import { BellRing, Database, BarChart3, Menu, X, Users, Calendar } from 'lucide-react';
 
 // Mobile-optimized Avatar Component
 const Avatar = ({ name, size = 40 }) => {

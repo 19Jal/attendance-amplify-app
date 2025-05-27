@@ -34,5 +34,23 @@
         "attendanceamplifyapp": {}
       }
     }
+  },
+  "main": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-attendanceamplifyapp-main-9754b-authRole",
+      "UnauthRoleArn": "arn:aws:iam::702975096997:role/amplify-attendanceamplifyapp-main-9754b-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::702975096997:role/amplify-attendanceamplifyapp-main-9754b-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-attendanceamplifyapp-main-9754b-deployment",
+      "UnauthRoleName": "amplify-attendanceamplifyapp-main-9754b-unauthRole",
+      "StackName": "amplify-attendanceamplifyapp-main-9754b",
+      "StackId": "arn:aws:cloudformation:us-east-1:702975096997:stack/amplify-attendanceamplifyapp-main-9754b/2f26e140-3a2a-11f0-a406-0ec3ca325e99",
+      "AmplifyAppId": "d3nwrb2x8z0w9v"
+    },
+    "categories": {
+      "api": {
+        "attendanceamplifyapp": {}
+      }
+    }
   }
 }

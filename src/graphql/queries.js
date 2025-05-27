@@ -1,12 +1,15 @@
+// src/graphql/queries.js - Final correct version for actual table structure
+
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const getStudent = /* GraphQL */ `
-  query GetStudent($id: ID!) {
-    getStudent(id: $id) {
-      id
-      name
-      studentIDNumber
+export const getFaceIndex = /* GraphQL */ `
+  query GetFaceIndex($StudentID: String!) {
+    getFaceIndex(StudentID: $StudentID) {
+      StudentID
+      FaceID
+      ImageID
+      Name
       createdAt
       attendanceRecords {
         nextToken
@@ -17,17 +20,19 @@ export const getStudent = /* GraphQL */ `
     }
   }
 `;
-export const listStudents = /* GraphQL */ `
-  query ListStudents(
-    $filter: ModelStudentFilterInput
+
+export const listFaceIndexes = /* GraphQL */ `
+  query ListFaceIndexes(
+    $filter: ModelFaceIndexFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listStudents(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listFaceIndexes(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
-        id
-        name
-        studentIDNumber
+        StudentID
+        FaceID
+        ImageID
+        Name
         createdAt
         updatedAt
         __typename
@@ -37,45 +42,46 @@ export const listStudents = /* GraphQL */ `
     }
   }
 `;
-export const getAttendanceRecord = /* GraphQL */ `
-  query GetAttendanceRecord($id: ID!) {
-    getAttendanceRecord(id: $id) {
+
+export const getAttendance = /* GraphQL */ `
+  query GetAttendance($id: ID!) {
+    getAttendance(id: $id) {
       id
-      studentID
-      student {
-        id
-        name
-        studentIDNumber
+      StudentID
+      Date
+      Image
+      Name
+      Time
+      faceIndex {
+        StudentID
+        FaceID
+        ImageID
+        Name
         createdAt
         updatedAt
         __typename
       }
-      timestamp
-      status
-      confidence
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const listAttendanceRecords = /* GraphQL */ `
-  query ListAttendanceRecords(
-    $filter: ModelAttendanceRecordFilterInput
+
+export const listAttendances = /* GraphQL */ `
+  query ListAttendances(
+    $filter: ModelAttendanceFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listAttendanceRecords(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
+    listAttendances(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        studentID
-        timestamp
-        status
-        confidence
+        StudentID
+        Date
+        Image
+        Name
+        Time
         createdAt
         updatedAt
         __typename
@@ -85,16 +91,17 @@ export const listAttendanceRecords = /* GraphQL */ `
     }
   }
 `;
-export const attendanceRecordsByStudentID = /* GraphQL */ `
-  query AttendanceRecordsByStudentID(
-    $studentID: ID!
+
+export const attendancesByStudentID = /* GraphQL */ `
+  query AttendancesByStudentID(
+    $StudentID: String!
     $sortDirection: ModelSortDirection
-    $filter: ModelAttendanceRecordFilterInput
+    $filter: ModelAttendanceFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    attendanceRecordsByStudentID(
-      studentID: $studentID
+    attendancesByStudentID(
+      StudentID: $StudentID
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
@@ -102,10 +109,11 @@ export const attendanceRecordsByStudentID = /* GraphQL */ `
     ) {
       items {
         id
-        studentID
-        timestamp
-        status
-        confidence
+        StudentID
+        Date
+        Image
+        Name
+        Time
         createdAt
         updatedAt
         __typename

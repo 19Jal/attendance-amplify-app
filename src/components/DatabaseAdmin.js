@@ -142,7 +142,7 @@ const AdminContent = ({
                 <div className="flex items-center">
                   <Users className="h-6 w-6 text-blue-600 mr-2" />
                   <div>
-                    <p className="text-sm text-gray-600">Students</p>
+                    <p className="text-sm text-gray-600">Face Indexes (Students)</p>
                     <p className="text-2xl font-bold text-blue-600">{dbStatus.counts.students}</p>
                   </div>
                 </div>
@@ -153,15 +153,6 @@ const AdminContent = ({
                   <div>
                     <p className="text-sm text-gray-600">Attendance Records</p>
                     <p className="text-2xl font-bold text-green-600">{dbStatus.counts.attendance}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-red-50 p-4 rounded-lg">
-                <div className="flex items-center">
-                  <Bell className="h-6 w-6 text-red-600 mr-2" />
-                  <div>
-                    <p className="text-sm text-gray-600">Alerts</p>
-                    <p className="text-2xl font-bold text-red-600">{dbStatus.counts.alerts}</p>
                   </div>
                 </div>
               </div>

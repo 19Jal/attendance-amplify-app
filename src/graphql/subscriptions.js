@@ -1,120 +1,90 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateStudent = /* GraphQL */ `
-  subscription OnCreateStudent($filter: ModelSubscriptionStudentFilterInput) {
-    onCreateStudent(filter: $filter) {
-      id
-      name
-      studentIDNumber
-      createdAt
-      attendanceRecords {
-        nextToken
-        __typename
-      }
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const onUpdateStudent = /* GraphQL */ `
-  subscription OnUpdateStudent($filter: ModelSubscriptionStudentFilterInput) {
-    onUpdateStudent(filter: $filter) {
-      id
-      name
-      studentIDNumber
-      createdAt
-      attendanceRecords {
-        nextToken
-        __typename
-      }
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const onDeleteStudent = /* GraphQL */ `
-  subscription OnDeleteStudent($filter: ModelSubscriptionStudentFilterInput) {
-    onDeleteStudent(filter: $filter) {
-      id
-      name
-      studentIDNumber
-      createdAt
-      attendanceRecords {
-        nextToken
-        __typename
-      }
-      updatedAt
-      __typename
-    }
-  }
-`;
-export const onCreateAttendanceRecord = /* GraphQL */ `
-  subscription OnCreateAttendanceRecord(
-    $filter: ModelSubscriptionAttendanceRecordFilterInput
+export const onCreateFaceIndex = /* GraphQL */ `
+  subscription OnCreateFaceIndex(
+    $filter: ModelSubscriptionFaceIndexFilterInput
   ) {
-    onCreateAttendanceRecord(filter: $filter) {
+    onCreateFaceIndex(filter: $filter) {
       id
+      Name
       studentID
-      student {
-        id
-        name
-        studentIDNumber
-        createdAt
-        updatedAt
-        __typename
-      }
-      timestamp
-      status
-      confidence
+      Date
+      Time
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onUpdateAttendanceRecord = /* GraphQL */ `
-  subscription OnUpdateAttendanceRecord(
-    $filter: ModelSubscriptionAttendanceRecordFilterInput
+export const onUpdateFaceIndex = /* GraphQL */ `
+  subscription OnUpdateFaceIndex(
+    $filter: ModelSubscriptionFaceIndexFilterInput
   ) {
-    onUpdateAttendanceRecord(filter: $filter) {
+    onUpdateFaceIndex(filter: $filter) {
       id
+      Name
       studentID
-      student {
-        id
-        name
-        studentIDNumber
-        createdAt
-        updatedAt
-        __typename
-      }
-      timestamp
-      status
-      confidence
+      Date
+      Time
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onDeleteAttendanceRecord = /* GraphQL */ `
-  subscription OnDeleteAttendanceRecord(
-    $filter: ModelSubscriptionAttendanceRecordFilterInput
+export const onDeleteFaceIndex = /* GraphQL */ `
+  subscription OnDeleteFaceIndex(
+    $filter: ModelSubscriptionFaceIndexFilterInput
   ) {
-    onDeleteAttendanceRecord(filter: $filter) {
+    onDeleteFaceIndex(filter: $filter) {
       id
+      Name
       studentID
-      student {
-        id
-        name
-        studentIDNumber
-        createdAt
-        updatedAt
-        __typename
-      }
-      timestamp
-      status
-      confidence
+      Date
+      Time
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateAttendance = /* GraphQL */ `
+  subscription OnCreateAttendance(
+    $filter: ModelSubscriptionAttendanceFilterInput
+  ) {
+    onCreateAttendance(filter: $filter) {
+      id
+      StudentID
+      Name
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateAttendance = /* GraphQL */ `
+  subscription OnUpdateAttendance(
+    $filter: ModelSubscriptionAttendanceFilterInput
+  ) {
+    onUpdateAttendance(filter: $filter) {
+      id
+      StudentID
+      Name
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteAttendance = /* GraphQL */ `
+  subscription OnDeleteAttendance(
+    $filter: ModelSubscriptionAttendanceFilterInput
+  ) {
+    onDeleteAttendance(filter: $filter) {
+      id
+      StudentID
+      Name
       createdAt
       updatedAt
       __typename

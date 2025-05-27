@@ -46,7 +46,7 @@ const ConnectionTest = () => {
       addResult('Amplify Config', 'error', 'Error reading Amplify config', error.message);
     }
 
-    // Test 3: Direct GraphQL test
+// Test 3: Direct GraphQL test
     try {
       const config = Amplify.getConfig();
       const endpoint = config.API?.GraphQL?.endpoint;
@@ -71,6 +71,7 @@ const ConnectionTest = () => {
                 items {
                   id
                   name
+                  studentIDNumber
                 }
               }
             }
