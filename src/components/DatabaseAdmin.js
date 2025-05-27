@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { seedDatabase, checkDatabaseStatus } from '../utils/seedData';
+import { checkDatabaseStatus } from '../utils/seedData';
 import { 
   seedDatabaseImproved, 
   testAttendanceCreation, 
@@ -13,36 +13,16 @@ import { Database, RefreshCw, CheckCircle, AlertCircle, Users, Clock, Settings, 
 const DatabaseAdmin = () => {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
   const [seedResult, setSeedResult] = useState(null);
   const [dbStatus, setDbStatus] = useState(null);
-  const [importResult, setImportResult] = useState(null);
-  const [existingTablesInfo, setExistingTablesInfo] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('admin');
   
-  // New state for enhanced testing
+  // Enhanced testing state
   const [validationResult, setValidationResult] = useState(null);
   const [testResult, setTestResult] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-
-  // Original handlers
-  const handleSeedDatabase = async () => {
-    setIsSeeding(true);
-    setError(null);
-    setSeedResult(null);
-    
-    try {
-      const result = await seedDatabase();
-      setSeedResult(result);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSeeding(false);
-    }
-  };
 
   const handleCheckStatus = async () => {
     setIsChecking(true);
@@ -58,7 +38,7 @@ const DatabaseAdmin = () => {
     }
   };
 
-  // New enhanced handlers
+  // Enhanced handlers
   const handleValidateConnection = async () => {
     setIsValidating(true);
     setError(null);
@@ -166,7 +146,6 @@ const DatabaseAdmin = () => {
           seedResult={seedResult}
           dbStatus={dbStatus}
           error={error}
-          handleSeedDatabase={handleSeedDatabase}
           handleCheckStatus={handleCheckStatus}
           handleEnhancedSeeding={handleEnhancedSeeding}
           handleValidateConnection={handleValidateConnection}
@@ -185,14 +164,13 @@ const DatabaseAdmin = () => {
   );
 };
 
-// Enhanced Admin Content Component
+// Clean Admin Content Component (No Legacy Seeding)
 const AdminContent = ({ 
   isSeeding, 
   isChecking, 
   seedResult, 
   dbStatus, 
   error, 
-  handleSeedDatabase, 
   handleCheckStatus,
   handleEnhancedSeeding,
   handleValidateConnection,
@@ -448,23 +426,6 @@ const AdminContent = ({
           )}
         </div>
 
-        {/* Legacy Seed Database Section */}
-        <div className="border rounded-lg p-4 bg-gray-50">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Legacy Seeding (Backup Option)</h3>
-          <p className="text-gray-600 mb-4 text-sm">
-            This is the original seeding function. Use the enhanced version above for better reliability.
-          </p>
-          
-          <button
-            onClick={handleSeedDatabase}
-            disabled={isSeeding}
-            className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
-          >
-            <Database className={`h-4 w-4 mr-2 ${isSeeding ? 'animate-pulse' : ''}`} />
-            {isSeeding ? 'Adding Sample Data...' : 'Run Legacy Seeding'}
-          </button>
-        </div>
-
         {/* Error Display */}
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -499,7 +460,5 @@ const AdminContent = ({
     </div>
   );
 };
-
-
 
 export default DatabaseAdmin;
