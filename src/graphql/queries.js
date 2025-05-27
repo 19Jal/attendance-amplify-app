@@ -44,8 +44,8 @@ export const listFaceIndices = /* GraphQL */ `
   }
 `;
 export const getAttendance = /* GraphQL */ `
-  query GetAttendance($StudentID: String!) {
-    getAttendance(StudentID: $StudentID) {
+  query GetAttendance($StudentID: String!, $Date: String!) {
+    getAttendance(StudentID: $StudentID, Date: $Date) {
       StudentID
       Date
       Image
@@ -60,6 +60,7 @@ export const getAttendance = /* GraphQL */ `
 export const listAttendances = /* GraphQL */ `
   query ListAttendances(
     $StudentID: String
+    $Date: ModelStringKeyConditionInput
     $filter: ModelAttendanceFilterInput
     $limit: Int
     $nextToken: String
@@ -67,6 +68,7 @@ export const listAttendances = /* GraphQL */ `
   ) {
     listAttendances(
       StudentID: $StudentID
+      Date: $Date
       filter: $filter
       limit: $limit
       nextToken: $nextToken

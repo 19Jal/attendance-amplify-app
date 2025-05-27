@@ -1,15 +1,20 @@
-# Schema for imported existing tables
+# Schema for imported existing tables - NO automatic timestamps
+# This matches your actual DynamoDB table structure
+
 type FaceIndex @model @auth(rules: [{ allow: public }]) {
   StudentID: String! @primaryKey
   FaceID: String!
   ImageID: String!  
   Name: String!
+  # Note: No createdAt/updatedAt - these don't exist in imported tables
 }
 
+# Attendance table has composite primary key (StudentID + Date)
 type Attendance @model @auth(rules: [{ allow: public }]) {
-  StudentID: String! @primaryKey
+  StudentID: String! @primaryKey(sortKeyFields: ["Date"])
   Date: String! 
   Image: String
   Name: String!
   Time: String!
+  # Note: No createdAt/updatedAt - these don't exist in imported tables
 }
