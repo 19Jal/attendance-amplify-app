@@ -860,6 +860,7 @@ const ReportsContent = ({ chartData }) => {
   );
 };
 
+
 // Report Card Component
 const ReportCard = ({ title, description, icon }) => {
   return (
