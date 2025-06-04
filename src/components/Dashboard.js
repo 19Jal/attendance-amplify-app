@@ -2,6 +2,160 @@ import React, { useState, useEffect } from 'react';
 import { getAllStudents, getAllAttendanceRecords } from '../services/api';
 import { Clock, Users, Calendar, AlertTriangle, Download, Search, ChevronRight, CheckCircle, X } from 'lucide-react';
 
+// Helper function to generate weekly attendance data for the current week
+const generateWeeklyAttendanceData = (attendanceRecords, totalStudents) => {
+  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const weekData = [];
+  
+  // Get current week's Monday
+  const now = new Date();
+  const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (currentDay === 0 ? 6 : currentDay - 1)); // Get Monday of current week
+  
+  // Generate data for each weekday
+  weekdays.forEach((dayName, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    
+    const dayData = {
+      day: dayName,
+      fullDate: date.toLocaleDateString('en-US'),
+      present: 0,
+      total: totalStudents,
+      rate: 0
+    };
+    
+    // Count unique students who were present on this day
+    const presentStudents = new Set();
+    attendanceRecords.forEach(record => {
+      const recordDate = new Date(record.timestamp).toLocaleDateString('en-US');
+      if (recordDate === dayData.fullDate && record.status === 'Present') {
+        presentStudents.add(record.studentId); // Use studentId to count unique students
+      }
+    });
+    
+    dayData.present = presentStudents.size;
+    
+    // Calculate attendance rate based on total students
+    dayData.rate = totalStudents > 0 ? Math.round((dayData.present / totalStudents) * 100) : 0;
+    
+    weekData.push(dayData);
+  });
+  
+  return weekData;
+};
+
+// Line Chart Component for Weekly Attendance
+const WeeklyAttendanceChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        No weekly data available
+      </div>
+    );
+  }
+
+  const maxRate = Math.max(...data.map(item => item.rate), 100);
+  const chartWidth = 500;
+  const chartHeight = 200;
+  const padding = 50;
+
+  const xStep = (chartWidth - padding * 2) / (data.length - 1);
+  const yScale = (chartHeight - padding * 2) / 100; // Always scale to 100%
+
+  // Generate path for the line
+  const pathData = data.map((item, index) => {
+    const x = padding + index * xStep;
+    const y = chartHeight - padding - (item.rate * yScale);
+    return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+  }).join(' ');
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <h4 className="text-lg font-semibold mb-4">This Week's Attendance Trend</h4>
+      <div className="flex justify-center">
+        <svg width={chartWidth} height={chartHeight} className="overflow-visible">
+          {/* Grid lines */}
+          {[0, 25, 50, 75, 100].map(value => {
+            const y = chartHeight - padding - (value * yScale);
+            return (
+              <g key={value}>
+                <line
+                  x1={padding}
+                  y1={y}
+                  x2={chartWidth - padding}
+                  y2={y}
+                  stroke="#e5e7eb"
+                  strokeWidth="1"
+                />
+                <text
+                  x={padding - 15}
+                  y={y + 4}
+                  textAnchor="end"
+                  className="text-xs fill-gray-500"
+                >
+                  {value}%
+                </text>
+              </g>
+            );
+          })}
+          
+          {/* Line */}
+          <path
+            d={pathData}
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          
+          {/* Data points */}
+          {data.map((item, index) => {
+            const x = padding + index * xStep;
+            const y = chartHeight - padding - (item.rate * yScale);
+            return (
+              <g key={index}>
+                <circle
+                  cx={x}
+                  cy={y}
+                  r="5"
+                  fill="#3B82F6"
+                  stroke="white"
+                  strokeWidth="2"
+                  className="cursor-pointer hover:r-7 transition-all"
+                >
+                  <title>{`${item.day} (${item.fullDate}): ${item.rate}% (${item.present}/${item.total} students)`}</title>
+                </circle>
+                <text
+                  x={x}
+                  y={chartHeight - padding + 25}
+                  textAnchor="middle"
+                  className="text-sm fill-gray-600"
+                >
+                  {item.day.substring(0, 3)}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      
+      {/* Legend */}
+      <div className="mt-4 grid grid-cols-5 gap-2 text-xs text-gray-600">
+        {data.map((item, index) => (
+          <div key={index} className="text-center">
+            <div className="font-medium">{item.day.substring(0, 3)}</div>
+            <div className="text-blue-600 font-semibold">{item.rate}%</div>
+            <div>({item.present}/{item.total} students)</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // Helper function to get relative date
 const getRelativeDate = (dateString) => {
   const attendanceDate = new Date(dateString);
@@ -229,17 +383,26 @@ const AttendanceChart = ({ data }) => {
           </div>
           
           {/* Chart area */}
-          <div className="flex-1 flex flex-col h-full">
+          <div className="flex-1 flex flex-col h-full relative">
+            {/* Grid lines - positioned to align with Y-axis labels */}
+            <div className="absolute inset-0 py-6 pointer-events-none">
+              <div className="h-full flex flex-col justify-between">
+                {yAxisLabels.map((label, index) => (
+                  <div key={index} className="w-full border-t border-gray-200" style={{ height: '1px' }}></div>
+                ))}
+              </div>
+            </div>
+            
             {/* Bars container */}
-            <div className="flex-1 flex items-end justify-between pb-2">
+            <div className="flex-1 flex items-end justify-between pb-1 pt-6 relative z-10">
               {data.map((item, index) => {
                 const barContainerHeight = 100; // Use percentage of available height
-                const presentHeight = Math.max((item.present / maxValue) * barContainerHeight, item.present > 0 ? 5 : 0);
+                const presentHeight = Math.max((item.present / maxValue) * barContainerHeight, 2); // Always show at least 2% height
                 const absentHeight = Math.max((item.absent / maxValue) * barContainerHeight, item.absent > 0 ? 5 : 0);
                 
                 return (
                   <div key={index} className="flex flex-col items-center flex-1 h-full">
-                    <div className="flex justify-center items-end gap-1 mb-1 relative group flex-1">
+                    <div className="flex justify-center items-end gap-1 flex-1">
                       {/* Present bar */}
                       <div 
                         className="bg-green-500 rounded-t cursor-pointer hover:bg-green-600 transition-colors" 
@@ -258,12 +421,6 @@ const AttendanceChart = ({ data }) => {
                         }}
                         title={`Absent: ${item.absent}`}
                       />
-                      
-                      {/* Tooltip on hover */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                        {item.name}<br/>
-                        Present: {item.present} | Absent: {item.absent}
-                      </div>
                     </div>
                   </div>
                 );
@@ -400,7 +557,7 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
             calculateDashboardStats={calculateDashboardStats}
           />
         )}
-        {activeTab === 'attendance' && <AttendanceContent displayAttendance={displayAttendance} />}
+        {activeTab === 'attendance' && <AttendanceContent displayAttendance={displayAttendance} students={students} />}
         {activeTab === 'reports' && <ReportsContent chartData={chartData} />}
       </div>
     </div>
@@ -530,9 +687,12 @@ const DashboardContent = ({ students, displayAttendance, chartData, calculateDas
 };
 
 // Attendance Content Component
-const AttendanceContent = ({ displayAttendance }) => {
+const AttendanceContent = ({ displayAttendance, students }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [attendanceFilter, setAttendanceFilter] = useState('all'); // 'all', 'today', 'past'
+  
+  // Generate weekly attendance data for the line chart
+  const weeklyData = generateWeeklyAttendanceData(displayAttendance, students?.length || 0);
   
   const filteredAttendance = displayAttendance
     .filter(attendance => {
@@ -571,6 +731,9 @@ const AttendanceContent = ({ displayAttendance }) => {
           </div>
         </div>
       </div>
+
+      {/* Weekly Attendance Trend Chart */}
+      <WeeklyAttendanceChart data={weeklyData} />
 
       {/* Filter buttons for Attendance Records */}
       <div className="bg-white rounded-lg shadow-md p-4">
