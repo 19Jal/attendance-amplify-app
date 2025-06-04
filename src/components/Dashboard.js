@@ -2,6 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { getAllStudents, getAllAttendanceRecords } from '../services/api';
 import { Clock, Users, Calendar, AlertTriangle, Download, Search, ChevronRight, CheckCircle, X } from 'lucide-react';
 
+// Helper function to get relative date
+const getRelativeDate = (dateString) => {
+  const attendanceDate = new Date(dateString);
+  const today = new Date();
+  
+  // Reset time to midnight for accurate day comparison
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const attendanceMidnight = new Date(attendanceDate.getFullYear(), attendanceDate.getMonth(), attendanceDate.getDate());
+  
+  const diffTime = todayMidnight - attendanceMidnight;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) {
+    return 'Today';
+  } else if (diffDays === 1) {
+    return 'Yesterday';
+  } else if (diffDays > 1) {
+    return `${diffDays} days ago`;
+  } else if (diffDays === -1) {
+    return 'Tomorrow'; // Future date
+  } else {
+    return `In ${Math.abs(diffDays)} days`; // Future dates
+  }
+};
+
 // Mobile-optimized Avatar Component
 const Avatar = ({ name, size = 40 }) => {
   const initials = name
@@ -128,10 +153,12 @@ const StatCard = ({ title, value, icon, bgColor, textColor = "text-gray-800" }) 
   );
 };
 
-// Mobile-optimized Attendance Card - UPDATED to show both date and time
+// Mobile-optimized Attendance Card - UPDATED to show relative date with time
 const AttendanceCard = ({ attendance }) => {
   const statusColor = 
     attendance.status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+
+  const relativeDate = getRelativeDate(attendance.date);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 mb-3 w-full max-w-full">
@@ -148,7 +175,7 @@ const AttendanceCard = ({ attendance }) => {
         </span>
       </div>
       <div className="flex justify-between text-xs text-gray-500 min-w-0">
-        <span className="truncate">{attendance.date} at {attendance.time}</span>
+        <span className="truncate">{relativeDate} ({attendance.date}) at {attendance.time}</span>
         <span className="flex-shrink-0">Confidence: {Math.round(attendance.confidence * 100)}%</span>
       </div>
     </div>
@@ -383,6 +410,23 @@ const Dashboard = ({ activeTab = 'dashboard' }) => {
 // Dashboard Content Component
 const DashboardContent = ({ students, displayAttendance, chartData, calculateDashboardStats }) => {
   const stats = calculateDashboardStats(students, displayAttendance);
+  const [attendanceFilter, setAttendanceFilter] = useState('all'); // 'all', 'today', 'past'
+
+  // Filter attendance based on selected filter
+  const getFilteredRecentAttendance = () => {
+    const today = new Date().toLocaleDateString('en-US');
+    
+    switch (attendanceFilter) {
+      case 'today':
+        return displayAttendance.filter(attendance => attendance.date === today);
+      case 'past':
+        return displayAttendance.filter(attendance => attendance.date !== today);
+      default:
+        return displayAttendance;
+    }
+  };
+
+  const filteredRecentAttendance = getFilteredRecentAttendance();
 
   return (
     <div className="space-y-6 w-full max-w-full">
@@ -416,25 +460,69 @@ const DashboardContent = ({ students, displayAttendance, chartData, calculateDas
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 w-full">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 w-full h-96 flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-base md:text-lg font-semibold">Recent Attendances</h3>
             <ChevronRight size={20} className="text-gray-400 flex-shrink-0" />
           </div>
-          {displayAttendance.length > 0 ? (
-            <div className="space-y-3 w-full">
-              {displayAttendance
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 5)
-                .map((attendance) => (
-                  <AttendanceCard key={attendance.id} attendance={attendance} />
-                ))}
-            </div>
-          ) : (
-            <div className="text-gray-500 text-center py-8">
-              No attendance records found
-            </div>
-          )}
+          
+          {/* Filter buttons for Recent Attendances */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setAttendanceFilter('all')}
+              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                attendanceFilter === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setAttendanceFilter('today')}
+              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                attendanceFilter === 'today'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Today
+            </button>
+            <button
+              onClick={() => setAttendanceFilter('past')}
+              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                attendanceFilter === 'past'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Past Attendances
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {filteredRecentAttendance.length > 0 ? (
+              <div className="space-y-3 w-full overflow-y-auto">
+                {filteredRecentAttendance
+                  .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                  .slice(0, 5)
+                  .map((attendance) => (
+                    <AttendanceCard key={attendance.id} attendance={attendance} />
+                  ))}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-gray-500 text-center">
+                <Clock size={48} className="mb-4 text-gray-400" />
+                <div>
+                  {attendanceFilter === 'today' 
+                    ? "No attendance records for today" 
+                    : attendanceFilter === 'past'
+                    ? "No past attendance records found"
+                    : "No attendance records found"}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -444,12 +532,26 @@ const DashboardContent = ({ students, displayAttendance, chartData, calculateDas
 // Attendance Content Component
 const AttendanceContent = ({ displayAttendance }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [attendanceFilter, setAttendanceFilter] = useState('all'); // 'all', 'today', 'past'
   
   const filteredAttendance = displayAttendance
-    .filter(attendance =>
-      attendance.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      attendance.studentIDNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    .filter(attendance => {
+      // First apply date filter
+      const today = new Date().toLocaleDateString('en-US');
+      let dateMatch = true;
+      
+      if (attendanceFilter === 'today') {
+        dateMatch = attendance.date === today;
+      } else if (attendanceFilter === 'past') {
+        dateMatch = attendance.date !== today;
+      }
+      
+      // Then apply search filter
+      const searchMatch = attendance.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        attendance.studentIDNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return dateMatch && searchMatch;
+    })
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort newest first
 
   return (
@@ -467,12 +569,49 @@ const AttendanceContent = ({ displayAttendance }) => {
               className="pl-10 pr-4 py-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
             />
           </div>
-          <select className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Today</option>
-            <option>Yesterday</option>
-            <option>Last 7 days</option>
-            <option>This month</option>
-          </select>
+        </div>
+      </div>
+
+      {/* Filter buttons for Attendance Records */}
+      <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button
+            onClick={() => setAttendanceFilter('all')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              attendanceFilter === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            All Records
+          </button>
+          <button
+            onClick={() => setAttendanceFilter('today')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              attendanceFilter === 'today'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Today
+          </button>
+          <button
+            onClick={() => setAttendanceFilter('past')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              attendanceFilter === 'past'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Past Attendances
+          </button>
+        </div>
+        
+        <div className="text-sm text-gray-600 mb-4">
+          {attendanceFilter === 'today' && 'Showing today\'s attendance records'}
+          {attendanceFilter === 'past' && 'Showing past attendance records'}
+          {attendanceFilter === 'all' && `Showing ${filteredAttendance.length} attendance records`}
+          {searchTerm && ` matching "${searchTerm}"`}
         </div>
       </div>
       
@@ -488,7 +627,15 @@ const AttendanceContent = ({ displayAttendance }) => {
             <div className="text-gray-500 text-center py-12">
               <Clock size={48} className="mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-medium mb-2">No Attendance Records</h3>
-              <p>No attendance records found. Records will appear here once students check in.</p>
+              <p>
+                {attendanceFilter === 'today' 
+                  ? "No attendance records found for today." 
+                  : attendanceFilter === 'past'
+                  ? "No past attendance records found."
+                  : searchTerm 
+                  ? `No records found matching "${searchTerm}".`
+                  : "No attendance records found. Records will appear here once students check in."}
+              </p>
             </div>
           )}
         </div>
