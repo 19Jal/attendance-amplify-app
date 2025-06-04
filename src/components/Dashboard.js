@@ -330,7 +330,6 @@ const AttendanceCard = ({ attendance }) => {
       </div>
       <div className="flex justify-between text-xs text-gray-500 min-w-0">
         <span className="truncate">{relativeDate} ({attendance.date}) at {attendance.time}</span>
-        <span className="flex-shrink-0">Confidence: {Math.round(attendance.confidence * 100)}%</span>
       </div>
     </div>
   );

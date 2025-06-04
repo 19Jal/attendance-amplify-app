@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { testGraphQLConnection, addStudent } from '../services/api';
+import { testGraphQLConnection } from '../services/api';
 import { Amplify } from 'aws-amplify';
-import { AlertTriangle, CheckCircle, Settings, Database } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Settings, Database, Wifi } from 'lucide-react';
 
 const DiagnosticPanel = () => {
-  const [diagnostics, setDiagnostics] = useState({});
   const [isRunning, setIsRunning] = useState(false);
   const [testResults, setTestResults] = useState([]);
 
@@ -48,38 +47,7 @@ const DiagnosticPanel = () => {
         addTestResult('GraphQL Connection', false, 'GraphQL connection error', error.message);
       }
 
-      // Test 3: Test Create Student
-      addTestResult('Create Student', true, 'Testing student creation...');
-      
-      try {
-        const testStudent = {
-          name: 'Test Student ' + Date.now(),
-          studentIDNumber: 'TEST' + Date.now()
-        };
-        
-        const result = await addStudent(testStudent);
-        console.log('Student creation result:', result); // Debug log
-        
-        // Check if we got a valid result with required fields
-        if (result?.id && result?.name) {
-          addTestResult('Create Student', true, 'Student created successfully', {
-            id: result.id,
-            name: result.name,
-            studentIDNumber: result.studentIDNumber || 'N/A'
-          });
-        } else {
-          // This shouldn't happen based on your result, but let's see
-          addTestResult('Create Student', false, 'Student creation returned incomplete result', {
-            hasId: !!result?.id,
-            hasName: !!result?.name,
-            result: result
-          });
-        }
-      } catch (error) {
-        addTestResult('Create Student', false, 'Student creation failed', error.message);
-      }
-
-      // Test 4: Check aws-exports
+      // Test 3: Check aws-exports
       addTestResult('AWS Exports', true, 'Checking aws-exports file...');
       
       try {
@@ -91,6 +59,26 @@ const DiagnosticPanel = () => {
         }
       } catch (error) {
         addTestResult('AWS Exports', false, 'aws-exports.js not found or invalid', error.message);
+      }
+
+      // Test 4: API Permissions Test
+      addTestResult('API Permissions', true, 'Testing API read permissions...');
+      
+      try {
+        // Test basic read operations
+        const { getAllStudents, getAllAttendanceRecords } = await import('../services/api');
+        
+        const [students, attendance] = await Promise.all([
+          getAllStudents(),
+          getAllAttendanceRecords()
+        ]);
+        
+        addTestResult('API Permissions', true, 'API read permissions verified', {
+          studentsCount: students.length,
+          attendanceCount: attendance.length
+        });
+      } catch (error) {
+        addTestResult('API Permissions', false, 'API read permissions failed', error.message);
       }
 
     } catch (error) {
@@ -117,13 +105,13 @@ const DiagnosticPanel = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
-            <span className="font-semibold text-yellow-800">Troubleshooting Mode</span>
+            <Database className="h-5 w-5 text-blue-600 mr-2" />
+            <span className="font-semibold text-blue-800">System Health Check</span>
           </div>
-          <p className="text-yellow-700 mt-1">
-            Run these diagnostics to identify why the database seeding isn't working.
+          <p className="text-blue-700 mt-1">
+            Run comprehensive diagnostics to verify your attendance system's connectivity and permissions.
           </p>
         </div>
 
@@ -133,8 +121,8 @@ const DiagnosticPanel = () => {
             disabled={isRunning}
             className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            <Database className={`h-5 w-5 mr-2 ${isRunning ? 'animate-spin' : ''}`} />
-            {isRunning ? 'Running Diagnostics...' : 'Run Diagnostics'}
+            <Wifi className={`h-5 w-5 mr-2 ${isRunning ? 'animate-spin' : ''}`} />
+            {isRunning ? 'Running Diagnostics...' : 'Run System Diagnostics'}
           </button>
 
           {testResults.length > 0 && (
@@ -193,10 +181,10 @@ const DiagnosticPanel = () => {
           <h4 className="font-semibold text-blue-900 mb-2">Common Issues & Solutions:</h4>
           <ul className="text-sm text-blue-800 space-y-2">
             <li><strong>AWS Exports Missing:</strong> Run `amplify push` to generate aws-exports.js</li>
-            <li><strong>GraphQL Not Deployed:</strong> Check that your API is deployed with `amplify status`</li>
+            <li><strong>GraphQL Connection Failed:</strong> Check that your API is deployed with `amplify status`</li>
             <li><strong>Permission Issues:</strong> Ensure your API allows public access or configure authentication</li>
             <li><strong>Network Issues:</strong> Check your internet connection and AWS service status</li>
-            <li><strong>Schema Issues:</strong> Verify your GraphQL schema matches the mutations being used</li>
+            <li><strong>API Read Errors:</strong> Verify your GraphQL schema matches the expected structure</li>
           </ul>
         </div>
 
