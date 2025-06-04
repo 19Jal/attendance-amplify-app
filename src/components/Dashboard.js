@@ -43,6 +43,7 @@ const transformAttendanceData = (attendanceRecords, students) => {
       studentIDNumber: student ? student.studentIDNumber : 'N/A',
       time: timestamp.toLocaleTimeString('en-US', { hour12: false }),
       date: timestamp.toLocaleDateString('en-US'),
+      timestamp: record.timestamp, // Preserve original timestamp for sorting
       status: record.status === 'PRESENT' ? 'Present' : 'Absent', // Removed LATE option
       confidence: record.confidence,
       studentId: studentId
@@ -127,7 +128,7 @@ const StatCard = ({ title, value, icon, bgColor, textColor = "text-gray-800" }) 
   );
 };
 
-// Mobile-optimized Attendance Card
+// Mobile-optimized Attendance Card - UPDATED to show both date and time
 const AttendanceCard = ({ attendance }) => {
   const statusColor = 
     attendance.status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
@@ -147,7 +148,7 @@ const AttendanceCard = ({ attendance }) => {
         </span>
       </div>
       <div className="flex justify-between text-xs text-gray-500 min-w-0">
-        <span className="truncate">Time: {attendance.time}</span>
+        <span className="truncate">{attendance.date} at {attendance.time}</span>
         <span className="flex-shrink-0">Confidence: {Math.round(attendance.confidence * 100)}%</span>
       </div>
     </div>
@@ -258,8 +259,6 @@ const AttendanceChart = ({ data }) => {
     </div>
   );
 };
-
-
 
 // Main Dashboard Component
 const Dashboard = ({ activeTab = 'dashboard' }) => {
@@ -424,9 +423,12 @@ const DashboardContent = ({ students, displayAttendance, chartData, calculateDas
           </div>
           {displayAttendance.length > 0 ? (
             <div className="space-y-3 w-full">
-              {displayAttendance.slice(0, 5).map((attendance) => (
-                <AttendanceCard key={attendance.id} attendance={attendance} />
-              ))}
+              {displayAttendance
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 5)
+                .map((attendance) => (
+                  <AttendanceCard key={attendance.id} attendance={attendance} />
+                ))}
             </div>
           ) : (
             <div className="text-gray-500 text-center py-8">
@@ -443,10 +445,12 @@ const DashboardContent = ({ students, displayAttendance, chartData, calculateDas
 const AttendanceContent = ({ displayAttendance }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  const filteredAttendance = displayAttendance.filter(attendance =>
-    attendance.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    attendance.studentIDNumber.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAttendance = displayAttendance
+    .filter(attendance =>
+      attendance.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      attendance.studentIDNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort newest first
 
   return (
     <div className="space-y-6 w-full max-w-full">
@@ -492,8 +496,6 @@ const AttendanceContent = ({ displayAttendance }) => {
     </div>
   );
 };
-
-
 
 // Reports Content Component
 const ReportsContent = ({ chartData }) => {
@@ -548,8 +550,6 @@ const ReportsContent = ({ chartData }) => {
     </div>
   );
 };
-
-
 
 // Report Card Component
 const ReportCard = ({ title, description, icon }) => {
