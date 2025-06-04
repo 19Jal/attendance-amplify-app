@@ -2,4 +2,4 @@
 
 The dashboard is hosted on AWS Amplify
 
-URL: https://main.d1k310wq4f63hh.amplifyapp.com/
+URL: https://main.d5l0x3luaudb1.amplifyapp.com/
